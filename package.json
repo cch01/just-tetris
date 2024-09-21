@@ -6,8 +6,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "eslint src --max-warnings=0",
-    "types": "tsc --project tsconfig.json --noEmit"
+    "lint": "eslint src --report-unused-disable-directives",
+    "types": "tsc --project tsconfig.json --noEmit",
+    "prepare": "husky",
+    "lint-staged": "lint-staged"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -32,6 +34,8 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-tailwindcss": "^3.10.1",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
     "lodash": "^4.17.21",
     "postcss": "^8.4.21",
     "prettier": "^2.8.4",
@@ -42,5 +46,12 @@
     "vite-plugin-svgr": "^3.0.0",
     "vite-tsconfig-paths": "^4.0.7",
     "vitest": "^2.0.5"
+  },
+  "lint-staged": {
+    "*.@(ts|tsx)": [
+      "yarn lint --fix",
+      "yarn types"
+    ],
+    "*.{js,ts}": "eslint --cache --fix"
   }
 }
