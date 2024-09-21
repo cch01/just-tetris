@@ -13,7 +13,7 @@ export const useTetris = (
   colCount = 10,
   refreshPerSecond = 1
 ) => {
-  const [gameStarted, setGameStarted] = useState(false)
+  const [gameRunning, setGameRunning] = useState(false)
 
   const [justCollided, setJustCollided] = useState(false)
 
@@ -58,7 +58,7 @@ export const useTetris = (
     currentShapeState,
     onUpdateShapeCoordinate,
     justCollided,
-    gameStarted
+    gameRunning
   })
 
   const resetAll = useCallback(() => {
@@ -67,19 +67,19 @@ export const useTetris = (
   }, [onResetQueue, resetBoard])
 
   const onGameStop = useCallback(() => {
-    if (gameStarted) {
-      setGameStarted(false)
+    if (gameRunning) {
+      setGameRunning(false)
     }
     // resetAll()
-  }, [gameStarted])
+  }, [gameRunning])
 
   const onGameStart = useCallback(() => {
-    if (gameStarted) return
+    if (gameRunning) return
 
     resetAll()
 
-    setGameStarted(true)
-  }, [gameStarted, resetAll])
+    setGameRunning(true)
+  }, [gameRunning, resetAll])
 
   const sink = useCallback(
     (
@@ -99,16 +99,28 @@ export const useTetris = (
     [onShapeTranslateRepaint, onUpdateCurrentShapeCoordinate]
   )
 
+  const checkIsGameOver = useCallback(() => {
+    const canSpawnNextShape = checkCanSpawnShape(
+      nextShapeState.blockCoordinates,
+      boardMatrix
+    )
+
+    const overHeight = boardMatrix[4].some(({ locked }) => locked)
+
+    console.log({ canSpawnNextShape, overHeight, boardMatrix })
+
+    if (overHeight) console.log(JSON.stringify(boardMatrix[4], undefined, 2))
+
+    return overHeight || !canSpawnNextShape
+  }, [boardMatrix, checkCanSpawnShape, nextShapeState.blockCoordinates])
+
   const playKeyframe = useCallback(() => {
     if (justCollided) {
       setJustCollided(false)
 
-      const canSpawnNextShape = checkCanSpawnShape(
-        nextShapeState.blockCoordinates,
-        boardMatrix
-      )
+      const isGameOver = checkIsGameOver()
 
-      if (!canSpawnNextShape) {
+      if (isGameOver) {
         alert('Game Over')
         return onGameStop()
       }
@@ -134,6 +146,7 @@ export const useTetris = (
 
     if (hasCollision) {
       setJustCollided(true)
+      console.log('just collided, locking')
     }
 
     const lockBlocks = hasCollision
@@ -141,20 +154,19 @@ export const useTetris = (
     sink(currentShapeState, sankCurrShapeState, lockBlocks)
   }, [
     boardMatrix,
-    checkCanSpawnShape,
+    checkIsGameOver,
     currentShapeState,
     justCollided,
-    nextShapeState.blockCoordinates,
     onGameStop,
     popAndEnqueueShape,
     sink
   ])
 
   const onTogglePause = useCallback(() => {
-    setGameStarted((val) => !val)
+    setGameRunning((val) => !val)
   }, [])
 
-  useInterval(playKeyframe, 1000 * refreshPerSecond, gameStarted)
+  useInterval(playKeyframe, 1000 * refreshPerSecond, gameRunning)
 
   return { onGameStart, onGameStop, boardMatrix, onTogglePause }
 }

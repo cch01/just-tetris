@@ -6,5 +6,5 @@ export type UseShapeMovementsInputs = {
   onUpdateShapeCoordinate: (coordinates: Coordinate[]) => void
   boardMatrix: BlockState[][]
   justCollided: boolean
-  gameStarted: boolean
+  gameRunning: boolean
 }

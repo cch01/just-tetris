@@ -3,9 +3,9 @@ import { useTetris } from 'hooks/useTetris'
 
 const App = () => {
   const { onGameStart, onGameStop, boardMatrix, onTogglePause } = useTetris(
-    9,
+    16,
     10,
-    0.3
+    0.2
   )
 
   return (

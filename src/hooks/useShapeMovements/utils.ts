@@ -39,25 +39,41 @@ export const rotatedBlockCoordinations = (
     }
   })
 
-  if (['SShape', 'ZShape'].some((shape) => blockShapeState.name === shape)) {
-    return adjustForZorSBlock(rotatedBlock)
+  if (
+    ['SShape', 'ZShape', 'IShape'].some(
+      (shape) => blockShapeState.name === shape
+    )
+  ) {
+    return adjustForZOrBOrIBlock(rotatedBlock)
   }
 
   return rotatedBlock
 }
 
-// / Adjust the rotated block to prevent right/left shift
-function adjustForZorSBlock(rotatedBlock: Coordinate[]): Coordinate[] {
-  // Calculate the minimum and maximum column indices
+function adjustForZOrBOrIBlock(rotatedBlock: Coordinate[]): Coordinate[] {
   const minCol = Math.min(...rotatedBlock.map((cell) => cell.col))
   const maxCol = Math.max(...rotatedBlock.map((cell) => cell.col))
 
-  // Center the block horizontally if needed
   const shiftAmount = Math.floor((maxCol - minCol) / 2)
 
-  // Shift all columns left or right based on the calculated shift amount
   return rotatedBlock.map((cell) => ({
     row: cell.row,
     col: cell.col - shiftAmount
   }))
+}
+
+export const movedShapeCoordinations = (
+  blockShapeState: ShapeProperty,
+  direction: 'left' | 'right'
+) => {
+  const originalCoordinations = blockShapeState.blockCoordinates
+
+  const adjustment = direction === 'left' ? -1 : 1
+
+  const newCoordinations = originalCoordinations.map(({ row, col }) => ({
+    row,
+    col: col + adjustment
+  }))
+
+  return newCoordinations
 }
