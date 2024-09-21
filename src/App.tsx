@@ -1,12 +1,8 @@
 import { GameBoard } from 'components/molecules/GameBoard'
-import { useGameBoard } from 'hooks/useGameBoard'
+import { useTetris } from 'hooks/useTetris'
 
 const App = () => {
-  const { boardMatrix, onGameStart, shapeQueue, onGameStop } = useGameBoard(
-    20,
-    50,
-    0.1
-  )
+  const { onGameStart, onGameStop, boardMatrix } = useTetris(24, 10, 0.1)
 
   return (
     <div className="my-24 flex w-screen items-center justify-center">

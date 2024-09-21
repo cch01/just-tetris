@@ -1,97 +1,8 @@
-import { blockColorSchemes, BlockState, ColorKeys } from 'constants/block'
+import { blockColorSchemes, BlockState } from 'constants/block'
 import _ from 'lodash'
-import React from 'react'
-import { Coordinate, ShapeProperty } from 'types/coordinate'
+import { Coordinate } from 'types/coordinate'
 
-type ShapeSpawningPositions = {
-  IShape: ShapeProperty
-  JShape: ShapeProperty
-  LShape: ShapeProperty
-  OShape: ShapeProperty
-  SShape: ShapeProperty
-  TShape: ShapeProperty
-  ZShape: ShapeProperty
-}
-
-export const getShapeSpawningPositions = (
-  colCount = 10
-): ShapeSpawningPositions => {
-  const colMidIdx = colCount / 2
-  const rowBottomIdx = 3
-
-  return {
-    IShape: {
-      blockCoordinates: [
-        { col: colMidIdx - 1, row: rowBottomIdx },
-        { col: colMidIdx, row: rowBottomIdx },
-        { col: colMidIdx + 1, row: rowBottomIdx },
-        { col: colMidIdx + 2, row: rowBottomIdx }
-      ],
-      name: 'IShape',
-      color: 'cyan'
-    },
-    JShape: {
-      blockCoordinates: [
-        { col: colMidIdx - 1, row: rowBottomIdx },
-        { col: colMidIdx - 1, row: rowBottomIdx + 1 },
-        { col: colMidIdx, row: rowBottomIdx },
-        { col: colMidIdx + 1, row: rowBottomIdx }
-      ],
-      color: 'blue',
-      name: 'JShape'
-    },
-    LShape: {
-      blockCoordinates: [
-        { col: colMidIdx - 1, row: rowBottomIdx },
-        { col: colMidIdx, row: rowBottomIdx },
-        { col: colMidIdx + 1, row: rowBottomIdx },
-        { col: colMidIdx + 1, row: rowBottomIdx + 1 }
-      ],
-      name: 'LShape',
-      color: 'orange'
-    },
-    OShape: {
-      blockCoordinates: [
-        { col: colMidIdx - 1, row: rowBottomIdx },
-        { col: colMidIdx, row: rowBottomIdx },
-        { col: colMidIdx, row: rowBottomIdx + 1 },
-        { col: colMidIdx - 1, row: rowBottomIdx + 1 }
-      ],
-      color: 'yellow',
-      name: 'OShape'
-    },
-    SShape: {
-      color: 'green',
-      blockCoordinates: [
-        { col: colMidIdx, row: rowBottomIdx },
-        { col: colMidIdx - 1, row: rowBottomIdx },
-        { col: colMidIdx, row: rowBottomIdx + 1 },
-        { col: colMidIdx + 1, row: rowBottomIdx + 1 }
-      ],
-      name: 'SShape'
-    },
-    TShape: {
-      color: 'purple',
-      blockCoordinates: [
-        { col: colMidIdx, row: rowBottomIdx },
-        { col: colMidIdx - 1, row: rowBottomIdx },
-        { col: colMidIdx + 1, row: rowBottomIdx },
-        { col: colMidIdx, row: rowBottomIdx + 1 }
-      ],
-      name: 'TShape'
-    },
-    ZShape: {
-      color: 'red',
-      blockCoordinates: [
-        { col: colMidIdx, row: rowBottomIdx },
-        { col: colMidIdx, row: rowBottomIdx + 1 },
-        { col: colMidIdx - 1, row: rowBottomIdx + 1 },
-        { col: colMidIdx + 1, row: rowBottomIdx }
-      ],
-      name: 'ZShape'
-    }
-  }
-}
+import { CheckHasCollisionInputs } from './types'
 
 export const checkIsOutBound = (
   targetShapeCoordinates: Coordinate[],
@@ -129,22 +40,6 @@ export const generateBoardMatrix = (
   return board
 }
 
-export const checkCanSpawnShape = (
-  coordinates: Coordinate[],
-  boardMatrix: BlockState[][]
-) => {
-  const collideAtSpawn = coordinates.some(
-    ({ col, row }) => boardMatrix[row][col].occupied
-  )
-  return !collideAtSpawn
-}
-
-type CheckHasCollisionInputs = {
-  prevShapeCoordinates: Coordinate[]
-  targetShapeCoordinates: Coordinate[]
-  boardMatrix: BlockState[][]
-}
-
 export const checkHasCollision = ({
   boardMatrix,
   prevShapeCoordinates,
@@ -166,37 +61,4 @@ export const checkHasCollision = ({
   )
 
   return hasCollision
-}
-
-type OnShapeTranslationRepaintInputs = {
-  targetCoordinates: Coordinate[]
-  targetColor: ColorKeys
-  prevCoordinates: Coordinate[]
-  setBoardMatrix: React.Dispatch<React.SetStateAction<BlockState[][]>>
-}
-
-export const onShapeTranslateRepaint = ({
-  setBoardMatrix,
-  prevCoordinates,
-  targetColor,
-  targetCoordinates
-}: OnShapeTranslationRepaintInputs) => {
-  setBoardMatrix((board) => {
-    const boardCp = _.clone(board)
-
-    prevCoordinates.forEach(({ col, row }) => {
-      if (row <= 3) return
-      boardCp[row][col].colorScheme = blockColorSchemes.gray
-      boardCp[row][col].occupied = false
-    })
-
-    targetCoordinates.forEach(({ col, row }) => {
-      boardCp[row][col].colorScheme = blockColorSchemes[targetColor]
-      boardCp[row][col].occupied = ['gray', 'transparent'].some(
-        (color) => color !== targetColor
-      )
-    })
-
-    return boardCp
-  })
 }

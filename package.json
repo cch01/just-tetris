@@ -7,7 +7,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --report-unused-disable-directives",
-    "types": "tsc --project tsconfig.json --noEmit",
+    "types": "bash -c tsc --project ./tsconfig.json --noEmit",
     "prepare": "husky",
     "lint-staged": "lint-staged"
   },
