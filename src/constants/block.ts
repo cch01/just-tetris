@@ -85,6 +85,7 @@ export type BlockState = {
     schemeName: ColorKeys
   }
   occupied: boolean
+  locked: boolean
 }
 
 type SizeClass = {

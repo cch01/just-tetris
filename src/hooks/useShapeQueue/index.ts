@@ -11,7 +11,8 @@ export const useShapeQueue = (colCount = 10) => {
   )
 
   const getRandomShape = useCallback(
-    () => _.values(shapeSpawningPositions)[Math.floor(Math.random() * 7)],
+    () =>
+      _.clone(_.values(shapeSpawningPositions)[Math.floor(Math.random() * 7)]),
     [shapeSpawningPositions]
   )
 
@@ -41,7 +42,7 @@ export const useShapeQueue = (colCount = 10) => {
   const onUpdateCurrentShapeCoordinate = useCallback(
     (targetCoordinate: Coordinate[]) => {
       setShapeQueue((queue) => {
-        const queueCp = [...queue]
+        const queueCp = _.cloneDeep(queue)
         queueCp[0].blockCoordinates = targetCoordinate
         return queueCp
       })
@@ -54,6 +55,8 @@ export const useShapeQueue = (colCount = 10) => {
     popAndEnqueueShape,
     onResetQueue,
     onUpdateCurrentShapeCoordinate,
-    checkCanSpawnShape
+    checkCanSpawnShape,
+    currentShapeState: shapeQueue[0],
+    nextShapeState: shapeQueue[1]
   }
 }

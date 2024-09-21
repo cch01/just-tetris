@@ -9,7 +9,8 @@
     "lint": "eslint src --report-unused-disable-directives",
     "types": "bash -c tsc --project ./tsconfig.json --noEmit",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test": "vitest --coverage"
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -18,6 +19,9 @@
   },
   "devDependencies": {
     "@nabla/vite-plugin-eslint": "^1.5.0",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/jest-dom": "^6.5.0",
+    "@testing-library/react": "^16.0.1",
     "@types/lodash": "^4.17.7",
     "@types/node": "^18.15.3",
     "@types/react": "^18.0.28",
@@ -25,6 +29,7 @@
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.55.0",
     "@vitejs/plugin-react-swc": "^3.2.0",
+    "@vitest/coverage-v8": "^2.1.1",
     "@xpd/tailwind-3dtransforms": "^1.0.3",
     "autoprefixer": "^10.4.14",
     "eslint": "^8.36.0",
@@ -35,6 +40,7 @@
     "eslint-plugin-simple-import-sort": "^10.0.0",
     "eslint-plugin-tailwindcss": "^3.10.1",
     "husky": "^9.1.6",
+    "jsdom": "^25.0.0",
     "lint-staged": "^15.2.10",
     "lodash": "^4.17.21",
     "postcss": "^8.4.21",
@@ -45,7 +51,7 @@
     "vite": "^4.2.0",
     "vite-plugin-svgr": "^3.0.0",
     "vite-tsconfig-paths": "^4.0.7",
-    "vitest": "^2.0.5"
+    "vitest": "^2.1.1"
   },
   "lint-staged": {
     "*.@(ts|tsx)": [

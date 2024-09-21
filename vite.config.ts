@@ -6,6 +6,7 @@ import viteSvgr from 'vite-plugin-svgr'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
+  base: './',
   plugins: [react(), eslintPlugin(), viteSvgr(), tsconfigPaths()],
   resolve: {
     alias: {

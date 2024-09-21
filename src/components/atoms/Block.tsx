@@ -1,12 +1,13 @@
 import clsx from 'clsx'
 import { blockColorSchemes, sizeClassesMapper } from 'constants/block'
+import { memo } from 'react'
 
 type BlocKProps = {
   color: keyof typeof blockColorSchemes
   size?: 'sm' | 'md' | 'lg'
 }
 
-export const Block: React.FC<BlocKProps> = ({ color, size = 'lg' }) => {
+const Block: React.FC<BlocKProps> = memo(({ color, size = 'lg' }) => {
   const colors = blockColorSchemes[color]
 
   const sizeClasses = sizeClassesMapper[size]
@@ -53,4 +54,8 @@ export const Block: React.FC<BlocKProps> = ({ color, size = 'lg' }) => {
       />
     </div>
   )
-}
+})
+
+Block.displayName = 'Block'
+
+export { Block }

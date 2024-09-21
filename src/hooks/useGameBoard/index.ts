@@ -1,4 +1,5 @@
-import { blockColorSchemes, BlockState, ColorKeys } from 'constants/block'
+import { blockColorSchemes, BlockState } from 'constants/block'
+import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
 import _ from 'lodash'
 import { useCallback, useState } from 'react'
 
@@ -6,7 +7,7 @@ import {
   OnChangeBlocksColorInputs,
   OnShapeTranslationRepaintInputs
 } from './types'
-import { checkIsOutBound, generateBoardMatrix } from './utils'
+import { generateBoardMatrix } from './utils'
 
 export const useGameBoard = (rowCount = 24, colCount = 10) => {
   const [boardMatrix, setBoardMatrix] = useState<BlockState[][]>(
@@ -22,14 +23,24 @@ export const useGameBoard = (rowCount = 24, colCount = 10) => {
     ({
       prevCoordinates,
       targetColor,
-      targetCoordinates
+      targetCoordinates,
+      lockBlocks
     }: OnShapeTranslationRepaintInputs) => {
       setBoardMatrix((board) => {
+        const targetPositionBlocked = targetCoordinates.some(
+          ({ row, col }) => board[row][col].locked
+        )
+
+        if (targetPositionBlocked) return board
+
         const boardCp = _.clone(board)
 
         prevCoordinates.forEach(({ col, row }) => {
-          if (row <= 3) return
-          boardCp[row][col].colorScheme = blockColorSchemes.gray
+          const unSeenRow = row <= NON_PLAY_FIELD_BOTTOM_ROW_IDX
+
+          boardCp[row][col].colorScheme = unSeenRow
+            ? blockColorSchemes.transparent
+            : blockColorSchemes.gray
           boardCp[row][col].occupied = false
         })
 
@@ -38,6 +49,7 @@ export const useGameBoard = (rowCount = 24, colCount = 10) => {
           boardCp[row][col].occupied = ['gray', 'transparent'].some(
             (color) => color !== targetColor
           )
+          if (lockBlocks) boardCp[row][col].locked = true
         })
 
         return boardCp
@@ -64,7 +76,6 @@ export const useGameBoard = (rowCount = 24, colCount = 10) => {
     boardMatrix,
     resetBoard,
     onShapeTranslateRepaint,
-    onChangeBlocksColor,
-    checkIsOutBound
+    onChangeBlocksColor
   }
 }

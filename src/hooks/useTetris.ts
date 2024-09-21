@@ -1,10 +1,11 @@
 import _ from 'lodash'
 import { useCallback, useState } from 'react'
-import { ShapeProperty } from 'types/coordinate'
+import { Coordinate, ShapeProperty } from 'types/coordinate'
+import { checkHasCollision } from 'utils/checkHasCollision'
 
 import { useGameBoard } from './useGameBoard'
-import { checkHasCollision } from './useGameBoard/utils'
 import useInterval from './useInterval'
+import { useShapeMovements } from './useShapeMovements'
 import { useShapeQueue } from './useShapeQueue'
 
 export const useTetris = (
@@ -18,7 +19,6 @@ export const useTetris = (
 
   const {
     boardMatrix,
-    checkIsOutBound,
     onChangeBlocksColor,
     onShapeTranslateRepaint,
     resetBoard
@@ -27,10 +27,39 @@ export const useTetris = (
   const {
     onResetQueue,
     popAndEnqueueShape,
-    shapeQueue,
+    checkCanSpawnShape,
     onUpdateCurrentShapeCoordinate,
-    checkCanSpawnShape
+    currentShapeState,
+    nextShapeState
   } = useShapeQueue(colCount)
+
+  const onUpdateShapeCoordinate = useCallback(
+    (newCoordinates: Coordinate[]) => {
+      if (justCollided) return
+      onShapeTranslateRepaint({
+        prevCoordinates: currentShapeState.blockCoordinates,
+        targetColor: currentShapeState.color,
+        targetCoordinates: newCoordinates,
+        lockBlocks: false
+      })
+      onUpdateCurrentShapeCoordinate(newCoordinates)
+    },
+    [
+      currentShapeState.blockCoordinates,
+      currentShapeState.color,
+      justCollided,
+      onShapeTranslateRepaint,
+      onUpdateCurrentShapeCoordinate
+    ]
+  )
+
+  useShapeMovements({
+    boardMatrix,
+    currentShapeState,
+    onUpdateShapeCoordinate,
+    justCollided,
+    gameStarted
+  })
 
   const resetAll = useCallback(() => {
     resetBoard()
@@ -53,11 +82,16 @@ export const useTetris = (
   }, [gameStarted, resetAll])
 
   const sink = useCallback(
-    (prevShapeStates: ShapeProperty, nextShapeStates: ShapeProperty) => {
+    (
+      prevShapeStates: ShapeProperty,
+      nextShapeStates: ShapeProperty,
+      lockSankBlocks: boolean
+    ) => {
       onShapeTranslateRepaint({
         prevCoordinates: prevShapeStates.blockCoordinates,
         targetColor: nextShapeStates.color,
-        targetCoordinates: nextShapeStates.blockCoordinates
+        targetCoordinates: nextShapeStates.blockCoordinates,
+        lockBlocks: lockSankBlocks
       })
 
       onUpdateCurrentShapeCoordinate(nextShapeStates.blockCoordinates)
@@ -70,12 +104,12 @@ export const useTetris = (
       setJustCollided(false)
 
       const canSpawnNextShape = checkCanSpawnShape(
-        shapeQueue[1].blockCoordinates,
+        nextShapeState.blockCoordinates,
         boardMatrix
       )
 
       if (!canSpawnNextShape) {
-        console.log('Game Over')
+        alert('Game Over')
         return onGameStop()
       }
 
@@ -83,39 +117,44 @@ export const useTetris = (
       return
     }
 
-    const prevShapeStates = shapeQueue[0]
+    const sankCurrShapeState = _.cloneDeep(currentShapeState)
 
-    const nextShapeStates = _.cloneDeep(shapeQueue[0])
-
-    nextShapeStates.blockCoordinates = nextShapeStates.blockCoordinates.map(
-      ({ row, col }) => ({
+    sankCurrShapeState.blockCoordinates =
+      sankCurrShapeState.blockCoordinates.map(({ row, col }) => ({
         row: row + 1,
         col
-      })
-    )
-
-    sink(prevShapeStates, nextShapeStates)
+      }))
 
     const hasCollision = checkHasCollision({
-      prevShapeCoordinates: prevShapeStates.blockCoordinates,
-      targetShapeCoordinates: nextShapeStates.blockCoordinates,
-      boardMatrix
+      prevShapeCoordinates: currentShapeState.blockCoordinates,
+      targetShapeCoordinates: sankCurrShapeState.blockCoordinates,
+      boardMatrix,
+      mode: 'sink'
     })
 
     if (hasCollision) {
       setJustCollided(true)
     }
+
+    const lockBlocks = hasCollision
+
+    sink(currentShapeState, sankCurrShapeState, lockBlocks)
   }, [
     boardMatrix,
     checkCanSpawnShape,
+    currentShapeState,
     justCollided,
+    nextShapeState.blockCoordinates,
     onGameStop,
     popAndEnqueueShape,
-    shapeQueue,
     sink
   ])
 
+  const onTogglePause = useCallback(() => {
+    setGameStarted((val) => !val)
+  }, [])
+
   useInterval(playKeyframe, 1000 * refreshPerSecond, gameStarted)
 
-  return { onGameStart, onGameStop, boardMatrix }
+  return { onGameStart, onGameStop, boardMatrix, onTogglePause }
 }
