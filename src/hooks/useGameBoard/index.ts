@@ -10,27 +10,14 @@ import {
 } from 'react'
 import { Coordinate, ShapeProperty } from 'types/coordinate'
 
-import { checkIsOutBound, getShapeSpawningPositions } from './utils'
-
-const generateBoardMatrix = (rowCount = 24, colCount = 10): BlockState[][] => {
-  const board = []
-
-  for (let r = 0; r < rowCount; r++) {
-    const row = []
-    const colorScheme =
-      r < 4 ? blockColorSchemes.transparent : blockColorSchemes.gray
-
-    for (let c = 0; c < colCount; c++) {
-      row.push({
-        occupied: false,
-        colorScheme
-      })
-    }
-    board.push(row)
-  }
-
-  return board
-}
+import {
+  checkCanSpawnShape,
+  checkHasCollision,
+  checkIsOutBound,
+  generateBoardMatrix,
+  getShapeSpawningPositions,
+  onShapeTranslateRepaint
+} from './utils'
 
 export const useGameBoard = (
   rowCount = 24,
@@ -72,57 +59,24 @@ export const useGameBoard = (
     // resetAll()
   }, [gameStarted])
 
-  const checkCanSpawnShape = useCallback(
-    (coordinates: Coordinate[]) => {
-      const collideAtSpawn = coordinates.some(
-        ({ col, row }) => boardMatrix[row][col].occupied
-      )
-      return !collideAtSpawn
-    },
-    [boardMatrix]
-  )
-
   const popAndEnqueueShape = useCallback(() => {
-    setShapeQueue((queue) => {
-      const newShape = getRandomShape()
-      if (!checkCanSpawnShape(newShape.blockCoordinates)) {
-        onGameStop()
-        console.log('Game Over')
-        return queue
-      }
+    if (!checkCanSpawnShape(shapeQueue[1].blockCoordinates, boardMatrix)) {
+      onGameStop()
+      console.log('Game Over')
+      return
+    }
 
+    setShapeQueue((queue) => {
       const queueCp = _.cloneDeep(queue)
       queueCp.shift()
+
+      const newShape = getRandomShape()
+
       queueCp.push(newShape)
 
       return queueCp
     })
-  }, [checkCanSpawnShape, getRandomShape, onGameStop])
-
-  const checkHasCollision = useCallback(
-    (
-      prevShapeCoordinates: Coordinate[],
-      targetShapeCoordinates: Coordinate[]
-    ) => {
-      const hasCollision = targetShapeCoordinates.some(
-        ({ row: targetRow, col: targetCol }) => {
-          const previouslyOccupied = prevShapeCoordinates.some(
-            ({ row: prevRow, col: prevCol }) =>
-              prevRow === targetRow && prevCol === targetCol
-          )
-
-          if (previouslyOccupied) return
-
-          if (boardMatrix[targetRow + 1]?.[targetCol].occupied) return true
-
-          if (targetRow === rowCount - 1) return true
-        }
-      )
-
-      return hasCollision
-    },
-    [boardMatrix, rowCount]
-  )
+  }, [boardMatrix, getRandomShape, onGameStop, shapeQueue])
 
   const onChangeBlocksColor = useCallback(
     (coordinates: Coordinate[], color: ColorKeys) => {
@@ -139,37 +93,7 @@ export const useGameBoard = (
     [setBoardMatrix]
   )
 
-  const onShapeTranslateRepaint = useCallback(
-    (
-      targetCoordinates: Coordinate[],
-      targetColor: ColorKeys,
-      prevCoordinates: Coordinate[]
-    ) => {
-      setBoardMatrix((board) => {
-        const boardCp = _.cloneDeep(board)
-
-        prevCoordinates.forEach(({ col, row }) => {
-          if (row <= 3) return
-          boardCp[row][col].colorScheme = blockColorSchemes.gray
-          boardCp[row][col].occupied = false
-        })
-
-        targetCoordinates.forEach(({ col, row }) => {
-          console.log('painting', { col, row })
-          boardCp[row][col].colorScheme = blockColorSchemes[targetColor]
-          boardCp[row][col].occupied = ['gray', 'transparent'].some(
-            (color) => color !== targetColor
-          )
-        })
-
-        return boardCp
-      })
-    },
-    [setBoardMatrix]
-  )
-
   const sink = useCallback(() => {
-    console.log('Sink')
     const prevCoordinates = shapeQueue[0].blockCoordinates
 
     const targetShapeCoordinates = _.cloneDeep(shapeQueue[0])
@@ -180,13 +104,12 @@ export const useGameBoard = (
         col
       }))
 
-    console.log({ prevCoordinates, targetShapeCoordinates })
-
-    onShapeTranslateRepaint(
-      targetShapeCoordinates.blockCoordinates,
-      targetShapeCoordinates.color,
-      prevCoordinates
-    )
+    onShapeTranslateRepaint({
+      prevCoordinates,
+      setBoardMatrix,
+      targetColor: targetShapeCoordinates.color,
+      targetCoordinates: targetShapeCoordinates.blockCoordinates
+    })
 
     setShapeQueue((queue) => {
       const queueCp = [...queue]
@@ -194,19 +117,17 @@ export const useGameBoard = (
       return queueCp
     })
 
-    const hasCollision = checkHasCollision(
-      prevCoordinates,
-      targetShapeCoordinates.blockCoordinates
-    )
-
-    console.log({ hasCollision })
+    const hasCollision = checkHasCollision({
+      prevShapeCoordinates: prevCoordinates,
+      targetShapeCoordinates: targetShapeCoordinates.blockCoordinates,
+      boardMatrix
+    })
 
     return { hasCollision }
-  }, [checkHasCollision, onShapeTranslateRepaint, shapeQueue])
+  }, [boardMatrix, shapeQueue])
 
-  const sinkIntervalFn = useCallback(() => {
+  const playKeyframe = useCallback(() => {
     if (justCollided) {
-      console.log('just collision')
       setJustCollided(false)
       popAndEnqueueShape()
       return
@@ -227,7 +148,7 @@ export const useGameBoard = (
     setGameStarted(true)
   }, [gameStarted, resetAll])
 
-  useInterval(sinkIntervalFn, 100 * refreshPerSecond, gameStarted)
+  useInterval(playKeyframe, 1000 * refreshPerSecond, gameStarted)
 
-  return { boardMatrix, onGameStart, sinkIntervalFn, shapeQueue, onGameStop }
+  return { boardMatrix, onGameStart, shapeQueue, onGameStop }
 }

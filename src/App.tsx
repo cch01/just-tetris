@@ -2,8 +2,12 @@ import { GameBoard } from 'components/molecules/GameBoard'
 import { useGameBoard } from 'hooks/useGameBoard'
 
 const App = () => {
-  const { boardMatrix, onGameStart, sinkIntervalFn, shapeQueue, onGameStop } =
-    useGameBoard()
+  const { boardMatrix, onGameStart, shapeQueue, onGameStop } = useGameBoard(
+    20,
+    50,
+    0.1
+  )
+
   return (
     <div className="my-24 flex w-screen items-center justify-center">
       <div>

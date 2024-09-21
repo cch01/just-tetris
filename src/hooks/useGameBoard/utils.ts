@@ -1,3 +1,6 @@
+import { blockColorSchemes, BlockState, ColorKeys } from 'constants/block'
+import _ from 'lodash'
+import React from 'react'
 import { Coordinate, ShapeProperty } from 'types/coordinate'
 
 type ShapeSpawningPositions = {
@@ -101,4 +104,99 @@ export const checkIsOutBound = (
   )
 
   return isOutBound
+}
+
+export const generateBoardMatrix = (
+  rowCount = 24,
+  colCount = 10
+): BlockState[][] => {
+  const board = []
+
+  for (let r = 0; r < rowCount; r++) {
+    const row = []
+    const colorScheme =
+      r < 4 ? blockColorSchemes.transparent : blockColorSchemes.gray
+
+    for (let c = 0; c < colCount; c++) {
+      row.push({
+        occupied: false,
+        colorScheme
+      })
+    }
+    board.push(row)
+  }
+
+  return board
+}
+
+export const checkCanSpawnShape = (
+  coordinates: Coordinate[],
+  boardMatrix: BlockState[][]
+) => {
+  const collideAtSpawn = coordinates.some(
+    ({ col, row }) => boardMatrix[row][col].occupied
+  )
+  return !collideAtSpawn
+}
+
+type CheckHasCollisionInputs = {
+  prevShapeCoordinates: Coordinate[]
+  targetShapeCoordinates: Coordinate[]
+  boardMatrix: BlockState[][]
+}
+
+export const checkHasCollision = ({
+  boardMatrix,
+  prevShapeCoordinates,
+  targetShapeCoordinates
+}: CheckHasCollisionInputs) => {
+  const hasCollision = targetShapeCoordinates.some(
+    ({ row: targetRow, col: targetCol }) => {
+      const previouslyOccupied = prevShapeCoordinates.some(
+        ({ row: prevRow, col: prevCol }) =>
+          prevRow === targetRow && prevCol === targetCol
+      )
+
+      if (previouslyOccupied) return
+
+      if (boardMatrix[targetRow + 1]?.[targetCol].occupied) return true
+
+      if (targetRow === boardMatrix.length - 1) return true
+    }
+  )
+
+  return hasCollision
+}
+
+type OnShapeTranslationRepaintInputs = {
+  targetCoordinates: Coordinate[]
+  targetColor: ColorKeys
+  prevCoordinates: Coordinate[]
+  setBoardMatrix: React.Dispatch<React.SetStateAction<BlockState[][]>>
+}
+
+export const onShapeTranslateRepaint = ({
+  setBoardMatrix,
+  prevCoordinates,
+  targetColor,
+  targetCoordinates
+}: OnShapeTranslationRepaintInputs) => {
+  setBoardMatrix((board) => {
+    const boardCp = _.clone(board)
+
+    prevCoordinates.forEach(({ col, row }) => {
+      if (row <= 3) return
+      boardCp[row][col].colorScheme = blockColorSchemes.gray
+      boardCp[row][col].occupied = false
+    })
+
+    targetCoordinates.forEach(({ col, row }) => {
+      boardCp[row][col].colorScheme = blockColorSchemes[targetColor]
+      boardCp[row][col].occupied = ['gray', 'transparent'].some(
+        (color) => color !== targetColor
+      )
+    })
+
+    return boardCp
+  })
 }
