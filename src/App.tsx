@@ -3,7 +3,7 @@ import { useTetris } from 'hooks/useTetris'
 
 const App = () => {
   const { onGameStart, onGameStop, boardMatrix, onTogglePause } = useTetris(
-    10,
+    20,
     24,
     0.5
   )

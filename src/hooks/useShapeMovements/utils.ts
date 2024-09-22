@@ -85,42 +85,17 @@ export const moveShapeToBottom = (
 ) => {
   const lastRowIdx = boardMatrix.length - 1
 
-  const points = []
+  const closestBlockToBottomPairs = getClosestBlockToBottomPairs(
+    currentShapeCoordinates,
+    lastRowIdx,
+    boardMatrix
+  )
 
-  for (const { row, col } of currentShapeCoordinates) {
-    let highestContactingFixedBlock: { base: Coordinate; block: Coordinate } = {
-      base: { row: lastRowIdx + 1, col },
-      block: { row, col }
-    }
-
-    for (let r = lastRowIdx; r >= 0; r--) {
-      if (r <= row) break
-      console.log([r, col], boardMatrix[r][col])
-      if (
-        currentShapeCoordinates.find(
-          ({ row, col: _col }) => row === r && col === _col
-        )
-      ) {
-        continue
-      }
-      const isBlockLocked = boardMatrix[r][col].occupied
-
-      if (r < highestContactingFixedBlock.base.row && isBlockLocked) {
-        highestContactingFixedBlock = {
-          block: { row, col },
-          base: { row: r, col }
-        }
-      }
-    }
-
-    points.push(highestContactingFixedBlock)
-  }
-
-  const pointDiffs = points.map(
+  const pointHeightDiffs = closestBlockToBottomPairs.map(
     ({ base, block }) => Math.abs(base.row - block.row) - 1
   )
 
-  const minRowDiff = Math.min(...pointDiffs)
+  const minRowDiff = Math.min(...pointHeightDiffs)
 
   const newCoordinates = currentShapeCoordinates.map(({ row, col }) => ({
     row: row + minRowDiff,
@@ -128,4 +103,50 @@ export const moveShapeToBottom = (
   }))
 
   return newCoordinates
+}
+
+const getClosestBlockToBottomPairs = (
+  currentShapeCoordinates: Coordinate[],
+  lastRowIdx: number,
+  boardMatrix: BlockState[][]
+) => {
+  const closestBlockToBottomPairs: {
+    base: Coordinate
+    block: Coordinate
+  }[] = []
+
+  currentShapeCoordinates.forEach((block) => {
+    let closestBlockToBottomPair: { base: Coordinate; block: Coordinate } = {
+      base: { row: lastRowIdx + 1, col: block.col },
+      block
+    }
+
+    for (let iteratingRow = lastRowIdx; iteratingRow >= 0; iteratingRow--) {
+      if (iteratingRow <= block.row) break
+
+      const blockIsCurrentShape = currentShapeCoordinates.find(
+        ({ row, col: _col }) => row === iteratingRow && block.col === _col
+      )
+
+      if (blockIsCurrentShape) {
+        continue
+      }
+
+      const isBaseBlockHigherThanRecord =
+        iteratingRow < closestBlockToBottomPair.base.row
+
+      const isBaseBlockLocked = boardMatrix[iteratingRow][block.col].locked
+
+      if (isBaseBlockHigherThanRecord && isBaseBlockLocked) {
+        closestBlockToBottomPair = {
+          block,
+          base: { row: iteratingRow, col: block.col }
+        }
+      }
+    }
+
+    closestBlockToBottomPairs.push(closestBlockToBottomPair)
+  })
+
+  return closestBlockToBottomPairs
 }
