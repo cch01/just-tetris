@@ -22,7 +22,7 @@ export const useShapeQueue = (colCount = 10) => {
     getRandomShape()
   ])
 
-  const popAndEnqueueShape = useCallback(() => {
+  const dequeueAndEnqueueShapes = useCallback(() => {
     setShapeQueue((queue) => {
       const queueCp = _.cloneDeep(queue)
       queueCp.shift()
@@ -52,7 +52,7 @@ export const useShapeQueue = (colCount = 10) => {
 
   return {
     shapeQueue,
-    popAndEnqueueShape,
+    dequeueAndEnqueueShapes,
     onResetQueue,
     onUpdateCurrentShapeCoordinate,
     checkCanSpawnShape,

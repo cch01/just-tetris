@@ -1,3 +1,4 @@
+import { BlockState } from 'constants/block'
 import { Coordinate, ShapeProperty } from 'types/coordinate'
 
 export const getBlockGeometricPivot = (
@@ -62,7 +63,7 @@ function adjustForZOrBOrIBlock(rotatedBlock: Coordinate[]): Coordinate[] {
   }))
 }
 
-export const movedShapeCoordinations = (
+export const movedShapeHorizontal = (
   blockShapeState: ShapeProperty,
   direction: 'left' | 'right'
 ) => {
@@ -76,4 +77,55 @@ export const movedShapeCoordinations = (
   }))
 
   return newCoordinations
+}
+
+export const moveShapeToBottom = (
+  currentShapeCoordinates: Coordinate[],
+  boardMatrix: BlockState[][]
+) => {
+  const lastRowIdx = boardMatrix.length - 1
+
+  const points = []
+
+  for (const { row, col } of currentShapeCoordinates) {
+    let highestContactingFixedBlock: { base: Coordinate; block: Coordinate } = {
+      base: { row: lastRowIdx + 1, col },
+      block: { row, col }
+    }
+
+    for (let r = lastRowIdx; r >= 0; r--) {
+      if (r <= row) break
+      console.log([r, col], boardMatrix[r][col])
+      if (
+        currentShapeCoordinates.find(
+          ({ row, col: _col }) => row === r && col === _col
+        )
+      ) {
+        continue
+      }
+      const isBlockLocked = boardMatrix[r][col].occupied
+
+      if (r < highestContactingFixedBlock.base.row && isBlockLocked) {
+        highestContactingFixedBlock = {
+          block: { row, col },
+          base: { row: r, col }
+        }
+      }
+    }
+
+    points.push(highestContactingFixedBlock)
+  }
+
+  const pointDiffs = points.map(
+    ({ base, block }) => Math.abs(base.row - block.row) - 1
+  )
+
+  const minRowDiff = Math.min(...pointDiffs)
+
+  const newCoordinates = currentShapeCoordinates.map(({ row, col }) => ({
+    row: row + minRowDiff,
+    col
+  }))
+
+  return newCoordinates
 }

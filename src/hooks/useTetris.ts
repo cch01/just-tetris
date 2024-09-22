@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import { useCallback, useState } from 'react'
 import { Coordinate, ShapeProperty } from 'types/coordinate'
-import { checkHasCollision } from 'utils/checkHasCollision'
+import { checkCollisionStatus } from 'utils/checkCollisionStatus'
+import { checkIsAboveABlock } from 'utils/checkIsAboveABlock'
 
 import { useGameBoard } from './useGameBoard'
 import useInterval from './useInterval'
@@ -15,6 +16,8 @@ export const useTetris = (
 ) => {
   const [gameRunning, setGameRunning] = useState(false)
 
+  const [inBufferTime, setInBufferTime] = useState(false)
+
   const [justCollided, setJustCollided] = useState(false)
 
   const {
@@ -26,7 +29,7 @@ export const useTetris = (
 
   const {
     onResetQueue,
-    popAndEnqueueShape,
+    dequeueAndEnqueueShapes,
     checkCanSpawnShape,
     onUpdateCurrentShapeCoordinate,
     currentShapeState,
@@ -34,20 +37,18 @@ export const useTetris = (
   } = useShapeQueue(colCount)
 
   const onUpdateShapeCoordinate = useCallback(
-    (newCoordinates: Coordinate[]) => {
-      if (justCollided) return
+    (newCoordinates: Coordinate[], lock: boolean) => {
       onShapeTranslateRepaint({
         prevCoordinates: currentShapeState.blockCoordinates,
         targetColor: currentShapeState.color,
         targetCoordinates: newCoordinates,
-        lockBlocks: false
+        lockBlocks: lock,
+        callback: () => onUpdateCurrentShapeCoordinate(newCoordinates)
       })
-      onUpdateCurrentShapeCoordinate(newCoordinates)
     },
     [
       currentShapeState.blockCoordinates,
       currentShapeState.color,
-      justCollided,
       onShapeTranslateRepaint,
       onUpdateCurrentShapeCoordinate
     ]
@@ -91,10 +92,10 @@ export const useTetris = (
         prevCoordinates: prevShapeStates.blockCoordinates,
         targetColor: nextShapeStates.color,
         targetCoordinates: nextShapeStates.blockCoordinates,
-        lockBlocks: lockSankBlocks
+        lockBlocks: lockSankBlocks,
+        callback: () =>
+          onUpdateCurrentShapeCoordinate(nextShapeStates.blockCoordinates)
       })
-
-      onUpdateCurrentShapeCoordinate(nextShapeStates.blockCoordinates)
     },
     [onShapeTranslateRepaint, onUpdateCurrentShapeCoordinate]
   )
@@ -106,10 +107,6 @@ export const useTetris = (
     )
 
     const overHeight = boardMatrix[4].some(({ locked }) => locked)
-
-    console.log({ canSpawnNextShape, overHeight, boardMatrix })
-
-    if (overHeight) console.log(JSON.stringify(boardMatrix[4], undefined, 2))
 
     return overHeight || !canSpawnNextShape
   }, [boardMatrix, checkCanSpawnShape, nextShapeState.blockCoordinates])
@@ -125,8 +122,21 @@ export const useTetris = (
         return onGameStop()
       }
 
-      popAndEnqueueShape()
+      dequeueAndEnqueueShapes()
       return
+    }
+
+    const currShapeIsAtBottom = currentShapeState.blockCoordinates.some(
+      ({ row }) => row === boardMatrix.length - 1
+    )
+
+    const hasAdjacentBottomBlock = checkIsAboveABlock(
+      currentShapeState.blockCoordinates,
+      boardMatrix
+    )
+
+    if (hasAdjacentBottomBlock || currShapeIsAtBottom) {
+      return setJustCollided(true)
     }
 
     const sankCurrShapeState = _.cloneDeep(currentShapeState)
@@ -137,7 +147,7 @@ export const useTetris = (
         col
       }))
 
-    const hasCollision = checkHasCollision({
+    const { hasCollision } = checkCollisionStatus({
       prevShapeCoordinates: currentShapeState.blockCoordinates,
       targetShapeCoordinates: sankCurrShapeState.blockCoordinates,
       boardMatrix,
@@ -146,7 +156,6 @@ export const useTetris = (
 
     if (hasCollision) {
       setJustCollided(true)
-      console.log('just collided, locking')
     }
 
     const lockBlocks = hasCollision
@@ -158,7 +167,7 @@ export const useTetris = (
     currentShapeState,
     justCollided,
     onGameStop,
-    popAndEnqueueShape,
+    dequeueAndEnqueueShapes,
     sink
   ])
 

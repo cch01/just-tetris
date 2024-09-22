@@ -1,13 +1,14 @@
 import { Key, useKeyInput } from 'hooks/useKeyInput'
 import { useCallback, useMemo } from 'react'
 import { Coordinate } from 'types/coordinate'
-import { checkHasCollision } from 'utils/checkHasCollision'
+import { checkCollisionStatus } from 'utils/checkCollisionStatus'
 import { checkIsOutBound } from 'utils/checkIsOutBound'
 
 import { UseShapeMovementsInputs } from './types'
 import {
   getBlockGeometricPivot,
-  movedShapeCoordinations,
+  movedShapeHorizontal,
+  moveShapeToBottom,
   rotatedBlockCoordinations
 } from './utils'
 
@@ -30,10 +31,8 @@ export const useShapeMovements = ({
   const rotateShape = useCallback(
     (direction: 'clockwise' | 'counterclockwise') => {
       if (currentShapeState.name === 'OShape' || justCollided || !gameRunning) {
-        console.log('justCollided in rotation func')
         return
       }
-      console.log('rotated')
 
       let newCoordinates: Coordinate[]
       let trials = 1
@@ -52,23 +51,17 @@ export const useShapeMovements = ({
           boardHeight
         )
 
-        // console.log('rotate', direction, { isOutBound })
-
         if (isOutBound) {
           trials++
           continue
         }
 
-        const hasCollision = checkHasCollision({
+        const { hasCollision } = checkCollisionStatus({
           boardMatrix,
           prevShapeCoordinates: currentShapeCoordinates,
           targetShapeCoordinates: newCoordinates,
           mode: 'translation'
         })
-
-        // console.log('rotate', direction, JSON.stringify(newCoordinates), {
-        //   hasCollision
-        // })
 
         ableToRotate = !hasCollision
         trials++
@@ -76,8 +69,7 @@ export const useShapeMovements = ({
 
       if (!ableToRotate) return
 
-      // console.log('rotating to', JSON.stringify(newCoordinates!))
-      onUpdateShapeCoordinate(newCoordinates!)
+      onUpdateShapeCoordinate(newCoordinates!, false)
     },
     [
       boardHeight,
@@ -94,9 +86,9 @@ export const useShapeMovements = ({
 
   const moveBlock = useCallback(
     (direction: 'left' | 'right') => {
-      if (!gameRunning) return
+      if (!gameRunning || justCollided) return
 
-      const movedCoordinations = movedShapeCoordinations(
+      const movedCoordinations = movedShapeHorizontal(
         currentShapeState,
         direction
       )
@@ -109,7 +101,7 @@ export const useShapeMovements = ({
 
       if (isOutBound) return
 
-      const hasCollision = checkHasCollision({
+      const { hasCollision } = checkCollisionStatus({
         boardMatrix,
         prevShapeCoordinates: currentShapeCoordinates,
         targetShapeCoordinates: movedCoordinations,
@@ -118,7 +110,7 @@ export const useShapeMovements = ({
 
       if (hasCollision) return
 
-      onUpdateShapeCoordinate(movedCoordinations)
+      onUpdateShapeCoordinate(movedCoordinations, false)
     },
     [
       boardHeight,
@@ -127,9 +119,27 @@ export const useShapeMovements = ({
       currentShapeCoordinates,
       currentShapeState,
       gameRunning,
+      justCollided,
       onUpdateShapeCoordinate
     ]
   )
+
+  const moveBottom = useCallback(() => {
+    if (!gameRunning || justCollided) return
+
+    const newCoordinates = moveShapeToBottom(
+      currentShapeCoordinates,
+      boardMatrix
+    )
+
+    onUpdateShapeCoordinate(newCoordinates, true)
+  }, [
+    boardMatrix,
+    currentShapeCoordinates,
+    gameRunning,
+    justCollided,
+    onUpdateShapeCoordinate
+  ])
 
   useKeyInput(Key.ArrowUp, () => {
     rotateShape('clockwise')
@@ -141,5 +151,9 @@ export const useShapeMovements = ({
 
   useKeyInput(Key.ArrowRight, () => {
     moveBlock('right')
+  })
+
+  useKeyInput(Key.ArrowDown, () => {
+    moveBottom()
   })
 }

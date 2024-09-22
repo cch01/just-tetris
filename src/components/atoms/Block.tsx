@@ -22,7 +22,7 @@ const Block: React.FC<BlocKProps> = memo(({ color, size = 'lg' }) => {
     >
       <div
         className={clsx(
-          'absolute  rotate-x-90 transform',
+          'absolute  transform rotate-x-90',
           colors.top,
           sizeClasses.size,
           sizeClasses.top
@@ -30,7 +30,7 @@ const Block: React.FC<BlocKProps> = memo(({ color, size = 'lg' }) => {
       />
       <div
         className={clsx(
-          'absolute  -rotate-x-90 transform',
+          'absolute  transform -rotate-x-90',
           colors.bottom,
           sizeClasses.size,
           sizeClasses.bottom
@@ -38,7 +38,7 @@ const Block: React.FC<BlocKProps> = memo(({ color, size = 'lg' }) => {
       />
       <div
         className={clsx(
-          'absolute  rotate-y-90 transform',
+          'absolute  transform rotate-y-90',
           colors.right,
           sizeClasses.size,
           sizeClasses.right
@@ -46,7 +46,7 @@ const Block: React.FC<BlocKProps> = memo(({ color, size = 'lg' }) => {
       />
       <div
         className={clsx(
-          'absolute  -rotate-y-90 transform',
+          'absolute  transform -rotate-y-90',
           colors.left,
           sizeClasses.size,
           sizeClasses.left

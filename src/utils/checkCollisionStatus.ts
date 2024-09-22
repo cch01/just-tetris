@@ -1,19 +1,19 @@
 import { BlockState } from 'constants/block'
 import { Coordinate } from 'types/coordinate'
 
-export type CheckHasCollisionInputs = {
+export type CheckCollisionStatusInputs = {
   prevShapeCoordinates: Coordinate[]
   targetShapeCoordinates: Coordinate[]
   boardMatrix: BlockState[][]
   mode: 'sink' | 'translation'
 }
 
-export const checkHasCollision = ({
+export const checkCollisionStatus = ({
   boardMatrix,
   prevShapeCoordinates,
   targetShapeCoordinates,
   mode
-}: CheckHasCollisionInputs) => {
+}: CheckCollisionStatusInputs) => {
   const hasCollision = targetShapeCoordinates.some(
     ({ row: targetRow, col: targetCol }) => {
       const isOccupiedBySelf = prevShapeCoordinates.some(
@@ -39,5 +39,5 @@ export const checkHasCollision = ({
       if (targetRow === boardMatrix.length - 1) return true
     }
   )
-  return hasCollision
+  return { hasCollision }
 }

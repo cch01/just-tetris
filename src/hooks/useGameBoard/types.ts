@@ -6,6 +6,7 @@ export type OnShapeTranslationRepaintInputs = {
   targetColor: ColorKeys
   prevCoordinates: Coordinate[]
   lockBlocks: boolean
+  callback: () => void
 }
 
 export type OnChangeBlocksColorInputs = {

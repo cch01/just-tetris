@@ -24,7 +24,8 @@ export const useGameBoard = (rowCount = 24, colCount = 10) => {
       prevCoordinates,
       targetColor,
       targetCoordinates,
-      lockBlocks
+      lockBlocks,
+      callback
     }: OnShapeTranslationRepaintInputs) => {
       setBoardMatrix((board) => {
         const targetPositionBlocked = targetCoordinates.some(
@@ -35,22 +36,24 @@ export const useGameBoard = (rowCount = 24, colCount = 10) => {
 
         const boardCp = _.clone(board)
 
-        prevCoordinates.forEach(({ col, row }) => {
+        for (const { col, row } of prevCoordinates) {
           const unSeenRow = row <= NON_PLAY_FIELD_BOTTOM_ROW_IDX
 
           boardCp[row][col].colorScheme = unSeenRow
             ? blockColorSchemes.transparent
             : blockColorSchemes.gray
           boardCp[row][col].occupied = false
-        })
+        }
 
-        targetCoordinates.forEach(({ col, row }) => {
+        for (const { col, row } of targetCoordinates) {
           boardCp[row][col].colorScheme = blockColorSchemes[targetColor]
           boardCp[row][col].occupied = ['gray', 'transparent'].some(
             (color) => color !== targetColor
           )
           if (lockBlocks) boardCp[row][col].locked = true
-        })
+        }
+
+        callback()
 
         return boardCp
       })
