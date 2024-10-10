@@ -1,12 +1,52 @@
-import { BlockState } from 'constants/block'
+import { blockColorSchemes, BlockState } from 'constants/block'
 import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
-import { Coordinate } from 'types/coordinate'
+import _ from 'lodash'
+import { Coordinate, ShapeSpawningPositions } from 'types/shape'
 
-import { ShapeSpawningPositions } from './types'
+export const checkIsGameOver = (
+  nextShapeCoordinates: Coordinate[],
+  boardMatrix: BlockState[][]
+) => {
+  const canSpawnNextShape = checkCanSpawnShape(
+    nextShapeCoordinates,
+    boardMatrix
+  )
 
-export const getShapeSpawningPositions = (
+  const overHeight = boardMatrix[4].some(({ locked }) => locked)
+
+  return overHeight || !canSpawnNextShape
+}
+
+export const getRandomShape = (colCount: number) =>
+  _.clone(
+    _.values(getShapeSpawningPositions(colCount))[Math.floor(Math.random() * 7)]
+  )
+
+export const generateBoardMatrix = (
+  rowCount = 24,
   colCount = 10
-): ShapeSpawningPositions => {
+): BlockState[][] => {
+  const board: BlockState[][] = []
+
+  for (let r = 0; r < rowCount; r++) {
+    const row: BlockState[] = []
+    const colorScheme =
+      r < 4 ? blockColorSchemes.transparent : blockColorSchemes.gray
+
+    for (let c = 0; c < colCount; c++) {
+      row.push({
+        occupied: false,
+        colorScheme,
+        locked: false
+      })
+    }
+    board.push(row)
+  }
+
+  return board
+}
+
+const getShapeSpawningPositions = (colCount = 10): ShapeSpawningPositions => {
   const colMidIdx = colCount / 2
 
   return {
@@ -83,7 +123,7 @@ export const getShapeSpawningPositions = (
   }
 }
 
-export const checkCanSpawnShape = (
+const checkCanSpawnShape = (
   coordinates: Coordinate[],
   boardMatrix: BlockState[][]
 ) => {

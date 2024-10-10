@@ -1,14 +1,13 @@
 import { Block } from 'components/atoms/Block'
-import { BlockState } from 'constants/block'
+import { observer } from 'mobx-react-lite'
+import { useStores } from 'stores'
 
-type GameBoardProps = {
-  gameBoardState: BlockState[][]
-}
+export const GameBoard: React.FC = observer(() => {
+  const { tetrisStore } = useStores()
 
-export const GameBoard: React.FC<GameBoardProps> = ({ gameBoardState }) => {
   return (
     <>
-      {gameBoardState.map((row, rowIdx) => (
+      {tetrisStore.boardMatrix.map((row, rowIdx) => (
         <div key={`board-row-${rowIdx}`} className="flex">
           {row.map((block, blockIdx) => {
             return (
@@ -22,4 +21,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({ gameBoardState }) => {
       ))}
     </>
   )
-}
+})
+
+GameBoard.displayName = 'GameBoard'
