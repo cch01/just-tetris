@@ -13,17 +13,23 @@
     "test": "vitest --coverage"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "clsx": "^2.1.1",
     "mobx": "^6.13.3",
     "mobx-react-lite": "^4.0.7",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-currency-input-field": "^3.8.0",
+    "react-dom": "^18.2.0",
+    "tailwindcss-themer": "^4.0.0"
   },
   "devDependencies": {
     "@nabla/vite-plugin-eslint": "^1.5.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/lodash": "^4.17.7",
     "@types/node": "^18.15.3",
     "@types/react": "^18.0.28",

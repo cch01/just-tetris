@@ -6,7 +6,7 @@ export const GameBoard: React.FC = observer(() => {
   const { tetrisStore } = useStores()
 
   return (
-    <>
+    <div>
       {tetrisStore.boardMatrix.map((row, rowIdx) => (
         <div key={`board-row-${rowIdx}`} className="flex">
           {row.map((block, blockIdx) => {
@@ -19,7 +19,7 @@ export const GameBoard: React.FC = observer(() => {
           })}
         </div>
       ))}
-    </>
+    </div>
   )
 })
 

@@ -17,14 +17,13 @@ import { rotateShapeLogics } from './logics/rotate'
 import { sinkLogics } from './logics/sink'
 
 export class TetrisStore {
-  constructor(boardHeight = 24, boardWidth = 10, framePerSecond = 1) {
+  constructor(boardHeight = 24, boardWidth = 10, framePerSecond = 5) {
     this.boardHeight = boardHeight
     this.boardWidth = boardWidth
     this.framePerSecond = framePerSecond
+    this.resetAll()
     makeAutoObservable(this, {}, { autoBind: true })
   }
-
-  private gameTimer: NodeJS.Timeout | null = null
 
   private justCollided = false
 
@@ -32,6 +31,7 @@ export class TetrisStore {
   boardWidth = 10
   gameRunning = false
   framePerSecond = 1
+  gameTimer: NodeJS.Timeout | null = null
 
   boardMatrix: BlockState[][] = generateBoardMatrix(
     this.boardHeight,
@@ -237,6 +237,23 @@ export class TetrisStore {
     })
   }
 
+  setWidth(width: number) {
+    if (!width) return
+    this.boardWidth = width
+    this.resetAll()
+  }
+
+  setHeight(height: number) {
+    if (!height) return
+    this.boardHeight = height
+    this.resetAll()
+  }
+
+  setFramePerSecond(fps: number) {
+    if (!fps) return
+    this.framePerSecond = fps
+  }
+
   onGameStop() {
     this.gameRunning = false
     if (this.gameTimer) {
@@ -251,7 +268,7 @@ export class TetrisStore {
     this.gameRunning = true
     this.gameTimer = setInterval(() => {
       this.sink()
-    }, 1000 * this.framePerSecond)
+    }, 1000 / this.framePerSecond)
   }
 
   onTogglePause() {
