@@ -5,6 +5,8 @@ import { RefreshBoardInputs } from 'types/gameBoard'
 import { Coordinate, ShapeProperty } from 'types/shape'
 
 import {
+  burstAndInsertBlankLines,
+  checkBurstedRows,
   checkIsGameOver,
   generateBoardMatrix,
   getRandomShape
@@ -33,7 +35,8 @@ export class TetrisStore {
 
   boardMatrix: BlockState[][] = generateBoardMatrix(
     this.boardHeight,
-    this.boardWidth
+    this.boardWidth,
+    'init'
   )
 
   shapeQueue: ShapeProperty[] = [
@@ -43,7 +46,11 @@ export class TetrisStore {
   ]
 
   private resetAll() {
-    this.boardMatrix = generateBoardMatrix(this.boardHeight, this.boardWidth)
+    this.boardMatrix = generateBoardMatrix(
+      this.boardHeight,
+      this.boardWidth,
+      'init'
+    )
     this.resetQueue()
   }
 
@@ -185,6 +192,18 @@ export class TetrisStore {
     if (this.justCollided) {
       this.justCollided = false
 
+      this.lockAllOccupiedBlocks()
+
+      const burstedRowIdxs = checkBurstedRows(this.boardMatrix)
+
+      if (burstedRowIdxs.length) {
+        const newBoard = burstAndInsertBlankLines(
+          this.boardMatrix,
+          burstedRowIdxs
+        )
+        this.boardMatrix = newBoard
+      }
+
       const nextShape = this.shapeQueue[1].blockCoordinates
 
       const isGameOver = checkIsGameOver(nextShape, this.boardMatrix)
@@ -194,7 +213,6 @@ export class TetrisStore {
         return this.onGameStop()
       }
 
-      this.lockAllOccupiedBlocks()
       this.dequeueAndEnqueueShapes()
       return
     }

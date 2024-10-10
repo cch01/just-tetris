@@ -24,14 +24,21 @@ export const getRandomShape = (colCount: number) =>
 
 export const generateBoardMatrix = (
   rowCount = 24,
-  colCount = 10
+  colCount = 10,
+  mode: 'init' | 'replenish' = 'init'
 ): BlockState[][] => {
   const board: BlockState[][] = []
 
   for (let r = 0; r < rowCount; r++) {
     const row: BlockState[] = []
-    const colorScheme =
-      r < 4 ? blockColorSchemes.transparent : blockColorSchemes.gray
+    let colorScheme: any
+    if (mode === 'init') {
+      colorScheme =
+        r < 4 ? blockColorSchemes.transparent : blockColorSchemes.gray
+    }
+    if (mode === 'replenish') {
+      colorScheme = blockColorSchemes.gray
+    }
 
     for (let c = 0; c < colCount; c++) {
       row.push({
@@ -132,4 +139,31 @@ const checkCanSpawnShape = (
   })
 
   return !collideAtSpawn
+}
+
+export const checkBurstedRows = (boardMatrix: BlockState[][]) => {
+  const burstedRowIdxs = boardMatrix.reduce((acc, currRow, idx) => {
+    const fullyOccupied = currRow.every((block) => block.locked)
+    if (fullyOccupied) {
+      acc.push(idx)
+    }
+    return acc
+  }, [] as number[])
+
+  return burstedRowIdxs
+}
+
+export const burstAndInsertBlankLines = (
+  boardMatrix: BlockState[][],
+  removingIdx: number[]
+) => {
+  const newBoard = boardMatrix.filter((_row, idx) => !removingIdx.includes(idx))
+  const newlyGeneratedLines = generateBoardMatrix(
+    removingIdx.length,
+    boardMatrix[0].length,
+    'replenish'
+  )
+  newBoard.splice(4, 0, ...newlyGeneratedLines)
+
+  return newBoard
 }
