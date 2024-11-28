@@ -1,5 +1,6 @@
 import { blockColorSchemes, BlockState } from 'constants/block'
 import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
+import { cp } from 'fs'
 import _ from 'lodash'
 import { Coordinate, ShapeSpawningPositions } from 'types/shape'
 
@@ -25,13 +26,18 @@ export const getRandomShape = (colCount: number) =>
 export const generateBoardMatrix = (
   rowCount = 24,
   colCount = 10,
-  mode: 'init' | 'replenish' = 'init'
+  mode: 'init' | 'replenish' | 'transparent' = 'init'
 ): BlockState[][] => {
   const board: BlockState[][] = []
 
   for (let r = 0; r < rowCount; r++) {
     const row: BlockState[] = []
     let colorScheme: any
+
+    if (mode === 'transparent') {
+      colorScheme = blockColorSchemes.transparent
+    }
+
     if (mode === 'init') {
       colorScheme =
         r < 4 ? blockColorSchemes.transparent : blockColorSchemes.gray
