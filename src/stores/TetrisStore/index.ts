@@ -210,7 +210,7 @@ export class TetrisStore {
 
       if (isGameOver) {
         alert('Game Over')
-        return this.onGameStop()
+        return this.onGameReset()
       }
 
       this.dequeueAndEnqueueShapes()
@@ -254,12 +254,11 @@ export class TetrisStore {
     this.framePerSecond = fps
   }
 
-  onGameStop() {
+  onGameReset() {
     this.gameRunning = false
-    if (this.gameTimer) {
-      clearInterval(this.gameTimer)
-    }
+    this.gameTimer && clearInterval(this.gameTimer)
     this.gameTimer = null
+    this.resetAll()
   }
 
   onGameStart() {
@@ -284,6 +283,6 @@ export class TetrisStore {
     this.gameRunning = true
     this.gameTimer = setInterval(() => {
       this.sink()
-    }, 1000 * this.framePerSecond)
+    }, 1000 / this.framePerSecond)
   }
 }

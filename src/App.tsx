@@ -1,7 +1,6 @@
 import { Button } from 'components/atoms/Button'
 import { FormContainer } from 'components/atoms/Form/FormContainer'
 import { FormInputItem } from 'components/atoms/Form/FormInputItem'
-import { Hr } from 'components/atoms/Hr'
 import { GameBoard } from 'components/molecules/GameBoard'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
 import { observer } from 'mobx-react-lite'
@@ -15,7 +14,7 @@ const App = observer(() => {
       moveBottom,
       onGameStart,
       onTogglePause,
-      onGameStop,
+      onGameReset,
       gameRunning,
       gameTimer,
       boardHeight,
@@ -91,9 +90,7 @@ const App = observer(() => {
           <Button isDisabled={gameRunning} onClick={onGameStart}>
             Start
           </Button>
-          <Button isDisabled={!gameRunning} onClick={onGameStop}>
-            Stop
-          </Button>
+          <Button onClick={onGameReset}>Reset</Button>
           <Button onClick={onTogglePause}>Pause/Resume</Button>
         </div>
       </div>
