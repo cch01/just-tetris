@@ -91,7 +91,7 @@ const App = observer(() => {
   return (
     <div className="flex flex-row items-center justify-center gap-8">
       <GameBoard />
-      <div className="flex w-64 flex-col justify-between gap-4">
+      <div className="mt-40 flex w-64 flex-col justify-between gap-4">
         <FormContainer title="Next">
           <div className="grid grid-flow-col grid-cols-[2] items-center justify-center gap-6 p-4">
             <div className="">
