@@ -263,26 +263,20 @@ export class TetrisStore {
 
   onGameStart() {
     if (this.gameRunning) return
-    this.resetAll()
+
     this.gameRunning = true
     this.gameTimer = setInterval(() => {
       this.sink()
     }, 1000 / this.framePerSecond)
   }
 
-  onTogglePause() {
-    if (this.gameRunning) {
-      if (this.gameTimer) {
-        clearInterval(this.gameTimer)
-        this.gameTimer = null
-      }
-      this.gameRunning = false
-      return
+  onPause() {
+    if (!this.gameRunning) return
+    if (this.gameTimer) {
+      clearInterval(this.gameTimer)
+      this.gameTimer = null
     }
-
-    this.gameRunning = true
-    this.gameTimer = setInterval(() => {
-      this.sink()
-    }, 1000 / this.framePerSecond)
+    this.gameRunning = false
+    return
   }
 }

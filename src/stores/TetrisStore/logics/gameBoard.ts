@@ -1,6 +1,5 @@
 import { blockColorSchemes, BlockState } from 'constants/block'
 import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
-import { cp } from 'fs'
 import _ from 'lodash'
 import { Coordinate, ShapeSpawningPositions } from 'types/shape'
 

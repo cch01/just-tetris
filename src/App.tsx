@@ -1,8 +1,8 @@
-import { Block } from 'components/atoms/Block'
 import { Button } from 'components/atoms/Button'
 import { FormContainer } from 'components/atoms/Form/FormContainer'
 import { FormInputItem } from 'components/atoms/Form/FormInputItem'
 import { GameBoard } from 'components/molecules/GameBoard'
+import { NextBlockPreview } from 'components/molecules/NextBlockPreview'
 import { blockColorSchemes } from 'constants/block'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
 import { observer } from 'mobx-react-lite'
@@ -18,7 +18,7 @@ const App = observer(() => {
       moveBlock,
       moveBottom,
       onGameStart,
-      onTogglePause,
+      onPause,
       onGameReset,
       gameRunning,
       gameTimer,
@@ -58,7 +58,7 @@ const App = observer(() => {
     callback(valInt)
   }
 
-  const nextBlocks = useCallback((shape: ShapeProperty) => {
+  const getNextBlocksMatrix = useCallback((shape: ShapeProperty) => {
     const coordinates = shape.blockCoordinates
 
     const rowOffset = Math.min(...coordinates.map(({ row }) => row))
@@ -91,37 +91,15 @@ const App = observer(() => {
   return (
     <div className="flex flex-row items-center justify-center gap-8">
       <GameBoard />
-      <div className="mt-40 flex w-64 flex-col justify-between gap-4">
+      <div className="mt-40 flex  flex-col justify-between gap-4">
         <FormContainer title="Next">
-          <div className="grid grid-flow-col grid-cols-[2] items-center justify-center gap-6 p-4">
-            <div className="">
-              {nextBlocks(shapeQueue[1]).map((row, rowIdx) => (
-                <div key={`board-row-${rowIdx}`} className="flex">
-                  {row.map((block, blockIdx) => {
-                    return (
-                      <Block
-                        key={`block-${row}-${blockIdx}`}
-                        color={block.colorScheme.schemeName}
-                      />
-                    )
-                  })}
-                </div>
-              ))}
-            </div>
-            <div className="">
-              {nextBlocks(shapeQueue[2]).map((row, rowIdx) => (
-                <div key={`board-row-${rowIdx}`} className="flex">
-                  {row.map((block, blockIdx) => {
-                    return (
-                      <Block
-                        key={`block-${row}-${blockIdx}`}
-                        color={block.colorScheme.schemeName}
-                      />
-                    )
-                  })}
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-flow-col grid-cols-[2] items-center justify-center gap-2">
+            <NextBlockPreview
+              blocksMatrix={getNextBlocksMatrix(shapeQueue[1])}
+            />
+            <NextBlockPreview
+              blocksMatrix={getNextBlocksMatrix(shapeQueue[2])}
+            />
           </div>
         </FormContainer>
         <FormContainer title="Settings">
@@ -156,10 +134,12 @@ const App = observer(() => {
         </FormContainer>
         <div className="flex flex-col gap-2">
           <Button isDisabled={gameRunning} onClick={onGameStart}>
-            Start
+            Start / Resume
+          </Button>
+          <Button isDisabled={!gameRunning} onClick={onPause}>
+            Pause
           </Button>
           <Button onClick={onGameReset}>Reset</Button>
-          <Button onClick={onTogglePause}>Pause/Resume</Button>
         </div>
       </div>
     </div>
