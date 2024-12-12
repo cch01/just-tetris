@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import useClickOutside from 'hooks/useClickOutside'
 import React, { memo, useEffect, useState } from 'react'
 
 import { Button } from './Button'
@@ -8,11 +9,14 @@ interface ModalProps {
   onClose: () => void
   children: React.ReactNode
   title?: string
+  clickOutsideToClose?: boolean
 }
 
 export const Modal: React.FC<ModalProps> = memo(
-  ({ isOpen, onClose, children, title }) => {
+  ({ isOpen, onClose, children, title, clickOutsideToClose = true }) => {
     const [showModal, setShowModal] = useState<boolean>(isOpen)
+
+    const modalRef = useClickOutside<HTMLDivElement>(onClose)
 
     const handleTransitionEnd = () => {
       if (!isOpen) {
@@ -43,7 +47,10 @@ export const Modal: React.FC<ModalProps> = memo(
           )}
           onTransitionEnd={handleTransitionEnd}
         >
-          <div className="flex items-center justify-between">
+          <div
+            ref={(clickOutsideToClose && modalRef) || undefined}
+            className="flex items-center justify-between"
+          >
             <h2 className="text-2xl font-bold text-primary">{title}</h2>
             <button
               onClick={onClose}

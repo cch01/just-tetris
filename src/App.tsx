@@ -1,3 +1,10 @@
+import {
+  faGear,
+  faPause,
+  faPlay,
+  faRotateRight
+} from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from 'components/atoms/Button'
 import { FormContainer } from 'components/atoms/Form/FormContainer'
 import { FormInputItem } from 'components/atoms/Form/FormInputItem'
@@ -116,16 +123,27 @@ const App = observer(() => {
             </div>
           </FormContainer>
 
-          <div className="flex flex-col gap-2">
+          <div className="grid grid-flow-col gap-2">
             <Button isDisabled={gameRunning} onClick={onGameStart}>
-              Start / Resume
+              <FontAwesomeIcon
+                className={gameRunning ? 'text-tertiary' : 'text-primary'}
+                icon={faPlay}
+              />
             </Button>
             <Button isDisabled={!gameRunning} onClick={onPause}>
-              Pause
+              <FontAwesomeIcon
+                className={gameRunning ? 'text-primary' : 'text-tertiary'}
+                icon={faPause}
+              />
             </Button>
-            <Button onClick={onGameReset}>Reset</Button>
+            <Button onClick={onGameReset}>
+              <FontAwesomeIcon className="text-primary" icon={faRotateRight} />
+            </Button>
             <Button isDisabled={gameRunning} onClick={onToggleModal}>
-              Settings
+              <FontAwesomeIcon
+                className={gameRunning ? 'text-tertiary' : 'text-primary'}
+                icon={faGear}
+              />
             </Button>
           </div>
         </div>
