@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import useClickOutside from 'hooks/useClickOutside'
-import React, { memo, useEffect, useState } from 'react'
+import React, { memo, useLayoutEffect, useState } from 'react'
 
 import { Button } from './Button'
 
@@ -24,21 +24,18 @@ export const Modal: React.FC<ModalProps> = memo(
       }
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
       if (isOpen) {
         setShowModal(true)
       }
     }, [isOpen])
 
-    if (!showModal) return null
-
     return (
       <div
         className={clsx(
-          'fixed inset-0 z-50 flex items-center justify-center bg-tertiary bg-opacity-75 transition-opacity duration-300',
-          isOpen ? 'opacity-100' : 'opacity-0'
+          'fixed inset-0  flex items-center justify-center bg-tertiary bg-opacity-75 transition-opacity duration-300',
+          showModal ? 'z-50 opacity-100 ' : '-z-50 opacity-0'
         )}
-        onTransitionEnd={handleTransitionEnd}
       >
         <div
           className={clsx(

@@ -238,19 +238,19 @@ export class TetrisStore {
   }
 
   setWidth(width: number) {
-    if (!width) return
+    if (!width || width === this.boardWidth) return
     this.boardWidth = width
     this.resetAll()
   }
 
   setHeight(height: number) {
-    if (!height) return
+    if (!height || height === this.boardHeight) return
     this.boardHeight = height
     this.resetAll()
   }
 
   setFramePerSecond(fps: number) {
-    if (!fps) return
+    if (!fps || fps === this.framePerSecond) return
     this.framePerSecond = fps
   }
 
