@@ -1,5 +1,10 @@
 import { blockColorSchemes, BlockState } from 'constants/block'
 import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
+import {
+  LEVEL_UP_SCORE_THRESHOLD,
+  SCORES,
+  SUCCESSIVE_COMBO_BONUS
+} from 'constants/scoring'
 import { makeAutoObservable } from 'mobx'
 import { RefreshBoardInputs } from 'types/gameBoard'
 import { Coordinate, ShapeProperty } from 'types/shape'
@@ -11,8 +16,8 @@ import {
   generateBoardMatrix,
   getRandomShape
 } from './logics/gameBoard'
+import { hardDrop } from './logics/hardDrop'
 import { moveHorizontalLogics } from './logics/moveHorizontal'
-import { moveBottomLogics } from './logics/moveToBottom'
 import { rotateShapeLogics } from './logics/rotate'
 import { sinkLogics } from './logics/sink'
 
@@ -21,16 +26,22 @@ export class TetrisStore {
     this.boardHeight = boardHeight
     this.boardWidth = boardWidth
     this.framePerSecond = framePerSecond
+    this.userSelectedFramePerSecond = framePerSecond
     this.resetAll()
     makeAutoObservable(this, {}, { autoBind: true })
   }
 
   private justCollided = false
 
+  score = 0
+  combo = 0
+  level = 1
+
   boardHeight = 24
   boardWidth = 10
   gameRunning = false
   framePerSecond = 1
+  userSelectedFramePerSecond = 1
   gameTimer: NodeJS.Timeout | null = null
 
   boardMatrix: BlockState[][] = generateBoardMatrix(
@@ -52,6 +63,9 @@ export class TetrisStore {
       'init'
     )
     this.resetQueue()
+    this.score = 0
+    this.combo = 0
+    this.level = 1
   }
 
   private refreshBoard({
@@ -169,7 +183,7 @@ export class TetrisStore {
   moveBottom() {
     if (!this.gameRunning || this.justCollided) return
 
-    const newCoordinates = moveBottomLogics(
+    const newCoordinates = hardDrop(
       this.shapeQueue[0].blockCoordinates,
       this.boardMatrix
     )
@@ -202,6 +216,17 @@ export class TetrisStore {
           burstedRowIdxs
         )
         this.boardMatrix = newBoard
+        this.score +=
+          (SCORES[burstedRowIdxs.length] || SCORES[4]) +
+          this.combo * SUCCESSIVE_COMBO_BONUS
+        this.combo++
+
+        if (this.score / LEVEL_UP_SCORE_THRESHOLD > this.level) {
+          this.level++
+          this.framePerSecond += 1.5
+        }
+      } else {
+        this.combo = 0
       }
 
       const nextShape = this.shapeQueue[1].blockCoordinates
@@ -219,15 +244,15 @@ export class TetrisStore {
 
     const currentShapeState = this.shapeQueue[0]
 
-    const response = sinkLogics(
+    const sankResult = sinkLogics(
       currentShapeState,
       this.boardMatrix,
       this.onCollided
     )
 
-    if (!response) return
+    if (!sankResult) return
 
-    const { lockBlocks, sankCurrShapeState } = response
+    const { lockBlocks, sankCurrShapeState } = sankResult
 
     this.refreshBoard({
       prevCoordinates: currentShapeState.blockCoordinates,
@@ -250,14 +275,16 @@ export class TetrisStore {
   }
 
   setFramePerSecond(fps: number) {
-    if (!fps || fps === this.framePerSecond) return
+    if (!fps || fps === this.userSelectedFramePerSecond) return
     this.framePerSecond = fps
+    this.userSelectedFramePerSecond = fps
   }
 
   onGameReset() {
     this.gameRunning = false
     this.gameTimer && clearInterval(this.gameTimer)
     this.gameTimer = null
+    this.framePerSecond = this.userSelectedFramePerSecond
     this.resetAll()
   }
 

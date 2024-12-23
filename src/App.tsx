@@ -41,7 +41,9 @@ const App = observer(() => {
       setFramePerSecond,
       setHeight,
       setWidth,
-      shapeQueue
+      shapeQueue,
+      score,
+      level
     }
   } = useStores()
 
@@ -119,7 +121,17 @@ const App = observer(() => {
 
           <FormContainer title="Score">
             <div className="text-center align-middle">
-              <p className="text-7xl font-extrabold text-primary">12</p>
+              <p className="cursor-default select-none text-7xl font-extrabold italic text-highlight">
+                {score}
+              </p>
+            </div>
+          </FormContainer>
+
+          <FormContainer title="Level">
+            <div className="text-center align-middle">
+              <p className="cursor-default select-none text-7xl font-extrabold italic text-secondary">
+                {level}
+              </p>
             </div>
           </FormContainer>
 
