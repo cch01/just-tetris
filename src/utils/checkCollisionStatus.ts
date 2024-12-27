@@ -26,7 +26,7 @@ export const checkCollisionStatus = ({
 
       if (isOccupiedBySelf) return false
 
-      const isOccupiedByOther = boardMatrix[targetRow][targetCol].locked
+      const isOccupiedByOther = boardMatrix[targetRow]?.[targetCol]?.locked
 
       if (isOccupiedByOther) {
         return true

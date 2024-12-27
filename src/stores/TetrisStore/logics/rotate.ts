@@ -1,4 +1,6 @@
 import { BlockState } from 'constants/block'
+import { KICK_OFFSETS } from 'constants/gameBoard'
+import _cloneDeep from 'lodash/cloneDeep'
 import { Coordinate, ShapeProperty } from 'types/shape'
 import { checkCollisionStatus } from 'utils/checkCollisionStatus'
 import { checkIsOutBound } from 'utils/checkIsOutBound'
@@ -23,46 +25,54 @@ export const rotateShapeLogics = (
   currentShapeState: ShapeProperty,
   boardMatrix: BlockState[][]
 ) => {
-  const boardHeight = boardMatrix.length
-  const boardWidth = boardMatrix[0].length
   const prevCoordinates = currentShapeState.blockCoordinates
 
   let rotatedCoordinates: Coordinate[] = []
   let trials = 1
-  let ableToRotate = false
+  let isRotatable = false
 
   const pivot = getBlockGeometricPivot(prevCoordinates)
 
-  while (trials < 4 && !ableToRotate) {
+  while (trials < 4 && !isRotatable) {
     rotatedCoordinates = rotatedBlockCoordinations(
       currentShapeState,
       pivot,
       direction
     )
 
-    const isOutBound = checkIsOutBound(
+    let isCurrentCoordinatesValid = checkIsRotatable(
       rotatedCoordinates,
-      boardWidth,
-      boardHeight
+      boardMatrix,
+      currentShapeState
     )
 
-    if (isOutBound) {
-      trials++
-      continue
+    if (!isCurrentCoordinatesValid) {
+      for (const offsets of KICK_OFFSETS) {
+        const tempCoordinates = _cloneDeep(rotatedCoordinates)
+        tempCoordinates.forEach((block) => {
+          block.col += offsets.x
+          block.row += offsets.y
+        })
+
+        isCurrentCoordinatesValid = checkIsRotatable(
+          tempCoordinates,
+          boardMatrix,
+          currentShapeState
+        )
+
+        if (isCurrentCoordinatesValid) {
+          rotatedCoordinates = tempCoordinates
+          break
+        }
+      }
     }
 
-    const { hasCollision } = checkCollisionStatus({
-      boardMatrix,
-      prevShapeCoordinates: currentShapeState.blockCoordinates,
-      targetShapeCoordinates: rotatedCoordinates,
-      mode: 'translation'
-    })
+    isRotatable = isCurrentCoordinatesValid
 
-    ableToRotate = !hasCollision
     trials++
   }
 
-  if (!ableToRotate) return { rotated: false, rotatedCoordinates: [] }
+  if (!isRotatable) return { rotated: false, rotatedCoordinates: [] }
 
   return { rotated: true, rotatedCoordinates }
 }
@@ -110,4 +120,28 @@ const rotatedBlockCoordinations = (
   }
 
   return rotatedBlock
+}
+
+const checkIsRotatable = (
+  rotatedCoordinates: Coordinate[],
+  boardMatrix: BlockState[][],
+  currentShapeState: ShapeProperty
+) => {
+  const boardWidth = boardMatrix[0].length
+  const boardHeight = boardMatrix.length
+
+  const isOutBound = checkIsOutBound(
+    rotatedCoordinates,
+    boardWidth,
+    boardHeight
+  )
+
+  const { hasCollision } = checkCollisionStatus({
+    boardMatrix,
+    prevShapeCoordinates: currentShapeState.blockCoordinates,
+    targetShapeCoordinates: rotatedCoordinates,
+    mode: 'translation'
+  })
+
+  return !hasCollision && !isOutBound
 }

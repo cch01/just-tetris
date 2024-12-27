@@ -1,6 +1,7 @@
 import { blockColorSchemes, BlockState } from 'constants/block'
 import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
-import _ from 'lodash'
+import _clone from 'lodash/clone'
+import _values from 'lodash/values'
 import { Coordinate, ShapeSpawningPositions } from 'types/shape'
 
 export const checkIsGameOver = (
@@ -18,8 +19,8 @@ export const checkIsGameOver = (
 }
 
 export const getRandomShape = (colCount: number) =>
-  _.clone(
-    _.values(getShapeSpawningPositions(colCount))[Math.floor(Math.random() * 7)]
+  _clone(
+    _values(getShapeSpawningPositions(colCount))[Math.floor(Math.random() * 7)]
   )
 
 export const generateBoardMatrix = (
