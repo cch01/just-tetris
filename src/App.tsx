@@ -7,10 +7,9 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button } from 'components/atoms/Button'
 import { FormContainer } from 'components/atoms/Form/FormContainer'
-import { FormInputItem } from 'components/atoms/Form/FormInputItem'
-import { Modal } from 'components/atoms/Modal'
 import { GameBoard } from 'components/molecules/GameBoard'
 import { NextBlockPreview } from 'components/molecules/NextBlockPreview'
+import { SettingModal } from 'components/molecules/SettingModal'
 import { blockColorSchemes } from 'constants/block'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
 import { observer } from 'mobx-react-lite'
@@ -34,13 +33,6 @@ const App = observer(() => {
       onPause,
       onGameReset,
       gameRunning,
-      gameTimer,
-      boardHeight,
-      boardWidth,
-      framePerSecond,
-      setFramePerSecond,
-      setHeight,
-      setWidth,
       shapeQueue,
       score,
       level
@@ -66,16 +58,6 @@ const App = observer(() => {
   useKeyInput(Key.ArrowDown, () => {
     hardDrop()
   })
-
-  const onSetHandleNumberInput = (
-    val: string | undefined,
-    callback: (val: number) => void
-  ) => {
-    if (!val) return
-    const valInt = Math.floor(Number(val))
-    if (Number.isNaN(valInt)) return
-    callback(valInt)
-  }
 
   const getNextBlocksMatrix = useCallback((shape: ShapeProperty) => {
     const coordinates = shape.blockCoordinates
@@ -164,40 +146,10 @@ const App = observer(() => {
           </div>
         </div>
       </div>
-      <Modal
-        title="Settings"
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      >
-        <div className="flex flex-col gap-4">
-          <FormInputItem
-            description="Width:"
-            disabled={!!gameTimer}
-            decimalScale={0}
-            onValueChange={(val) => onSetHandleNumberInput(val, setWidth)}
-            value={boardWidth.toString()}
-          />
-          <FormInputItem
-            description="Height:"
-            disabled={!!gameTimer}
-            decimalScale={0}
-            onValueChange={(val) => onSetHandleNumberInput(val, setHeight)}
-            value={boardHeight.toString()}
-          />
-
-          <FormInputItem
-            description="Speed:"
-            disabled={!!gameTimer}
-            onValueChange={(val) =>
-              onSetHandleNumberInput(val, setFramePerSecond)
-            }
-            value={framePerSecond.toString()}
-            suffix=" fps"
-            decimalScale={0}
-            step={1}
-          />
-        </div>
-      </Modal>
+      <SettingModal
+        onCloseModal={() => setIsModalOpen(false)}
+        isModalOpen={isModalOpen}
+      />
     </>
   )
 })

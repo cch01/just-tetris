@@ -22,7 +22,7 @@ import { rotateShapeLogics } from './logics/rotate'
 import { sinkLogics } from './logics/sink'
 
 export class TetrisStore {
-  constructor(boardHeight = 24, boardWidth = 10, framePerSecond = 5) {
+  constructor(boardHeight: number, boardWidth: number, framePerSecond: number) {
     this.boardHeight = boardHeight
     this.boardWidth = boardWidth
     this.framePerSecond = framePerSecond

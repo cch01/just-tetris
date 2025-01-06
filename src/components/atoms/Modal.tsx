@@ -10,10 +10,11 @@ interface ModalProps {
   children: React.ReactNode
   title?: string
   clickOutsideToClose?: boolean
+  onOk?: () => void
 }
 
 export const Modal: React.FC<ModalProps> = memo(
-  ({ isOpen, onClose, children, title, clickOutsideToClose = true }) => {
+  ({ isOpen, onClose, children, title, clickOutsideToClose = true, onOk }) => {
     const [showModal, setShowModal] = useState<boolean>(isOpen)
 
     const modalRef = useClickOutside<HTMLDivElement>(onClose)
@@ -38,16 +39,14 @@ export const Modal: React.FC<ModalProps> = memo(
         )}
       >
         <div
+          ref={(clickOutsideToClose && modalRef) || undefined}
           className={clsx(
             'w-full max-w-lg transform rounded-lg bg-bg-primary p-6 shadow-xl transition-all duration-300',
             isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
           )}
           onTransitionEnd={handleTransitionEnd}
         >
-          <div
-            ref={(clickOutsideToClose && modalRef) || undefined}
-            className="flex items-center justify-between"
-          >
+          <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-primary">{title}</h2>
             <button
               onClick={onClose}
@@ -57,8 +56,17 @@ export const Modal: React.FC<ModalProps> = memo(
             </button>
           </div>
           <div className="mt-4">{children}</div>
-          <div className="mt-6 flex justify-end">
-            <Button onClick={onClose}>Close</Button>
+
+          <div className="flex justify-between">
+            {onOk && (
+              <div className="mt-6 flex justify-start">
+                <Button onClick={onOk}>OK</Button>
+              </div>
+            )}
+            <div />
+            <div className="mt-6 flex justify-end">
+              <Button onClick={onClose}>Close</Button>
+            </div>
           </div>
         </div>
       </div>
