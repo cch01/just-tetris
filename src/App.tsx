@@ -29,7 +29,7 @@ const App = observer(() => {
     tetrisStore: {
       rotateShape,
       moveBlock,
-      moveBottom,
+      hardDrop,
       onGameStart,
       onPause,
       onGameReset,
@@ -47,9 +47,13 @@ const App = observer(() => {
     }
   } = useStores()
 
-  useKeyInput(Key.ArrowUp, () => {
-    rotateShape('clockwise')
-  })
+  useKeyInput(
+    Key.ArrowUp,
+    () => {
+      rotateShape('clockwise')
+    },
+    { repeat: false, repeatDelay: 1000 }
+  )
 
   useKeyInput(Key.ArrowLeft, () => {
     moveBlock('left')
@@ -60,7 +64,7 @@ const App = observer(() => {
   })
 
   useKeyInput(Key.ArrowDown, () => {
-    moveBottom()
+    hardDrop()
   })
 
   const onSetHandleNumberInput = (

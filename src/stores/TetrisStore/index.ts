@@ -180,7 +180,7 @@ export class TetrisStore {
     })
   }
 
-  moveBottom() {
+  hardDrop() {
     if (!this.gameRunning || this.justCollided) return
 
     const newCoordinates = hardDrop(

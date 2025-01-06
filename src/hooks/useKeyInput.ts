@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 
 export enum Key {
   ArrowUp = 'ArrowUp',
@@ -33,21 +33,52 @@ export enum Key {
   Z = 'z'
 }
 
-export const useKeyInput = (key: Key, callback: () => void) => {
+type KeyInputOptions = {
+  repeat?: boolean // Enable repeated callback execution
+  repeatDelay?: number // Delay between repeated executions (ms)
+}
+
+export const useKeyInput = (
+  key: Key,
+  callback: () => void,
+  options: KeyInputOptions = { repeat: true, repeatDelay: 150 }
+) => {
+  const { repeat, repeatDelay } = options
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === key) {
-        callback()
+        event.preventDefault()
+        if (repeat && !intervalRef.current) {
+          callback()
+          intervalRef.current = setInterval(callback, repeatDelay)
+        } else callback()
       }
     },
-    [key, callback]
+    [key, callback, repeat, repeatDelay]
+  )
+
+  const handleKeyRelease = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.key === key && intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    },
+    [key]
   )
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress, { passive: true })
+    window.addEventListener('keydown', handleKeyPress, { passive: false })
+    window.addEventListener('keyup', handleKeyRelease, { passive: false })
 
     return () => {
       window.removeEventListener('keydown', handleKeyPress)
+      window.removeEventListener('keyup', handleKeyRelease)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
     }
-  }, [handleKeyPress])
+  }, [handleKeyPress, handleKeyRelease])
 }
