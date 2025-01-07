@@ -6,6 +6,8 @@ import { Score } from 'components/molecules/Score'
 import { SettingModal } from 'components/molecules/SettingModal'
 import useDimensions from 'hooks/useDimensions'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
+import useTouchActions from 'hooks/useTouchActions'
+import _throttle from 'lodash/throttle'
 import { observer } from 'mobx-react-lite'
 import { useCallback, useEffect, useState } from 'react'
 import { useStores } from 'stores'
@@ -41,6 +43,34 @@ const App = observer(() => {
   useKeyInput(Key.ArrowDown, () => {
     hardDrop()
   })
+
+  const throttledHardDrop = useCallback(
+    _throttle(hardDrop, 500, { leading: true, trailing: false }),
+    [hardDrop]
+  )
+
+  const onPan = useCallback(
+    _throttle(
+      (panEvent: { deltaX: number; deltaY: number; event: TouchEvent }) => {
+        const isMovingY = Math.abs(panEvent.deltaY) > 30 && panEvent.deltaY > 0
+
+        if (isMovingY) {
+          throttledHardDrop()
+        } else {
+          moveBlock(panEvent.deltaX > 0 ? 'right' : 'left')
+        }
+      },
+      100,
+      { leading: true, trailing: false }
+    ),
+    [moveBlock, throttledHardDrop]
+  )
+
+  const onTap = useCallback(() => {
+    rotateShape('clockwise')
+  }, [rotateShape])
+
+  useTouchActions(onPan, onTap)
 
   useEffect(() => {
     if (isMobile) {

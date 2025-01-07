@@ -33,6 +33,7 @@ export const generateBoardMatrix = (
   for (let r = 0; r < rowCount; r++) {
     const row: BlockState[] = []
     let colorScheme: any
+    let hidden = false
 
     if (mode === 'transparent') {
       colorScheme = BLOCK_COLOR_SCHEMES.transparent
@@ -41,6 +42,7 @@ export const generateBoardMatrix = (
     if (mode === 'init') {
       colorScheme =
         r < 4 ? BLOCK_COLOR_SCHEMES.transparent : BLOCK_COLOR_SCHEMES.gray
+      hidden = r < 4
     }
     if (mode === 'replenish') {
       colorScheme = BLOCK_COLOR_SCHEMES.gray
@@ -51,7 +53,7 @@ export const generateBoardMatrix = (
         occupied: false,
         colorScheme,
         locked: false,
-        hidden: r < 4
+        hidden
       })
     }
     board.push(row)
