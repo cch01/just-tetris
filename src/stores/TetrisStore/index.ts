@@ -1,4 +1,4 @@
-import { blockColorSchemes, BlockState } from 'constants/block'
+import { BLOCK_COLOR_SCHEMES, BlockState } from 'constants/block'
 import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
 import {
   LEVEL_UP_SCORE_THRESHOLD,
@@ -84,13 +84,13 @@ export class TetrisStore {
       const unSeenRow = row <= NON_PLAY_FIELD_BOTTOM_ROW_IDX
 
       this.boardMatrix[row][col].colorScheme = unSeenRow
-        ? blockColorSchemes.transparent
-        : blockColorSchemes.gray
+        ? BLOCK_COLOR_SCHEMES.transparent
+        : BLOCK_COLOR_SCHEMES.gray
       this.boardMatrix[row][col].occupied = false
     }
 
     for (const { col, row } of targetCoordinates) {
-      this.boardMatrix[row][col].colorScheme = blockColorSchemes[targetColor]
+      this.boardMatrix[row][col].colorScheme = BLOCK_COLOR_SCHEMES[targetColor]
       this.boardMatrix[row][col].occupied = ['gray', 'transparent'].some(
         (color) => color !== targetColor
       )

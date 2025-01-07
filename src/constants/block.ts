@@ -1,4 +1,4 @@
-export const blockColorSchemes = {
+export const BLOCK_COLOR_SCHEMES = {
   orange: {
     center: 'bg-orange-500',
     top: 'bg-orange-400',
@@ -73,7 +73,7 @@ export const blockColorSchemes = {
   }
 } as const
 
-export type ColorKeys = keyof typeof blockColorSchemes
+export type ColorKeys = keyof typeof BLOCK_COLOR_SCHEMES
 
 export type BlockState = {
   colorScheme: {

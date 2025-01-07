@@ -1,14 +1,14 @@
 import clsx from 'clsx'
-import { blockColorSchemes, sizeClassesMapper } from 'constants/block'
+import { BLOCK_COLOR_SCHEMES, sizeClassesMapper } from 'constants/block'
 import { memo } from 'react'
 
 type BlocKProps = {
-  color: keyof typeof blockColorSchemes
+  color: keyof typeof BLOCK_COLOR_SCHEMES
   size?: 'sm' | 'md' | 'lg'
 }
 
 const Block: React.FC<BlocKProps> = memo(({ color, size = 'lg' }) => {
-  const colors = blockColorSchemes[color]
+  const colors = BLOCK_COLOR_SCHEMES[color]
 
   const sizeClasses = sizeClassesMapper[size]
 

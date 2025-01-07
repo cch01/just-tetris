@@ -1,4 +1,4 @@
-import { blockColorSchemes, BlockState } from 'constants/block'
+import { BLOCK_COLOR_SCHEMES, BlockState } from 'constants/block'
 import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
 import _clone from 'lodash/clone'
 import _values from 'lodash/values'
@@ -35,15 +35,15 @@ export const generateBoardMatrix = (
     let colorScheme: any
 
     if (mode === 'transparent') {
-      colorScheme = blockColorSchemes.transparent
+      colorScheme = BLOCK_COLOR_SCHEMES.transparent
     }
 
     if (mode === 'init') {
       colorScheme =
-        r < 4 ? blockColorSchemes.transparent : blockColorSchemes.gray
+        r < 4 ? BLOCK_COLOR_SCHEMES.transparent : BLOCK_COLOR_SCHEMES.gray
     }
     if (mode === 'replenish') {
-      colorScheme = blockColorSchemes.gray
+      colorScheme = BLOCK_COLOR_SCHEMES.gray
     }
 
     for (let c = 0; c < colCount; c++) {
