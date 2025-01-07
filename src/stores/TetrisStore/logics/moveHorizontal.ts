@@ -1,5 +1,5 @@
 import { BlockState } from 'constants/block'
-import { ShapeProperty } from 'types/shape'
+import { Coordinate, ShapeProperty } from 'types/shape'
 import { checkCollisionStatus } from 'utils/checkCollisionStatus'
 import { checkIsOutBound } from 'utils/checkIsOutBound'
 
@@ -11,7 +11,10 @@ export const moveHorizontalLogics = (
   const boardHeight = boardMatrix.length
   const boardWidth = boardMatrix[0].length
 
-  const movedCoordinations = moveShapeHorizontal(currentShapeState, direction)
+  const movedCoordinations = moveShapeHorizontal(
+    currentShapeState.blockCoordinates,
+    direction
+  )
 
   const isOutBound = checkIsOutBound(
     movedCoordinations,
@@ -34,14 +37,12 @@ export const moveHorizontalLogics = (
 }
 
 const moveShapeHorizontal = (
-  blockShapeState: ShapeProperty,
+  blockCoordinates: Coordinate[],
   direction: 'left' | 'right'
 ) => {
-  const originalCoordinations = blockShapeState.blockCoordinates
-
   const adjustment = direction === 'left' ? -1 : 1
 
-  const newCoordinations = originalCoordinations.map(({ row, col }) => ({
+  const newCoordinations = blockCoordinates.map(({ row, col }) => ({
     row,
     col: col + adjustment
   }))

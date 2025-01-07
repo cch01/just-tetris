@@ -60,7 +60,7 @@ export const generateBoardMatrix = (
 }
 
 const getShapeSpawningPositions = (colCount = 10): ShapeSpawningPositions => {
-  const colMidIdx = colCount / 2
+  const colMidIdx = Math.floor(colCount / 2)
 
   return {
     IShape: {
