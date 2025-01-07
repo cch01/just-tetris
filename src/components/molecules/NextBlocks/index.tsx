@@ -44,7 +44,7 @@ export const NextBlocks: React.FC = observer(() => {
   }, [])
   return (
     <FormContainer title="Next">
-      <div className="grid grid-flow-col grid-cols-[2] items-center justify-center gap-2">
+      <div className="grid grid-flow-col grid-cols-[2] items-center justify-around gap-2">
         <NextBlockPreview blocksMatrix={getNextBlocksMatrix(shapeQueue[1])} />
         <NextBlockPreview blocksMatrix={getNextBlocksMatrix(shapeQueue[2])} />
       </div>

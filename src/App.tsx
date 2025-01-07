@@ -1,18 +1,13 @@
-import {
-  faGear,
-  faPause,
-  faPlay,
-  faRotateRight
-} from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { Button } from 'components/atoms/Button'
-import { FormContainer } from 'components/atoms/Form/FormContainer'
 import { GameBoard } from 'components/molecules/GameBoard'
+import { GameControlButtons } from 'components/molecules/GameControlButtons'
+import { Level } from 'components/molecules/Level'
 import { NextBlocks } from 'components/molecules/NextBlocks'
+import { Score } from 'components/molecules/Score'
 import { SettingModal } from 'components/molecules/SettingModal'
+import useDimensions from 'hooks/useDimensions'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
 import { observer } from 'mobx-react-lite'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useStores } from 'stores'
 
 const App = observer(() => {
@@ -22,18 +17,10 @@ const App = observer(() => {
     [setIsModalOpen]
   )
   const {
-    tetrisStore: {
-      rotateShape,
-      moveBlock,
-      hardDrop,
-      onGameStart,
-      onPause,
-      onGameReset,
-      gameRunning,
-      score,
-      level
-    }
+    tetrisStore: { rotateShape, moveBlock, hardDrop, setWidth }
   } = useStores()
+
+  const { isMobile } = useDimensions()
 
   useKeyInput(
     Key.ArrowUp,
@@ -55,53 +42,45 @@ const App = observer(() => {
     hardDrop()
   })
 
+  useEffect(() => {
+    if (isMobile) {
+      setWidth(12)
+    }
+  }, [isMobile, setWidth])
+
   return (
     <>
-      <div className="flex flex-row flex-wrap items-center justify-center gap-8">
-        <GameBoard />
-        <div className="mt-40 flex  flex-col justify-between gap-4">
-          <NextBlocks />
-
-          <FormContainer title="Score">
-            <div className="text-center align-middle">
-              <p className="cursor-default select-none text-7xl font-extrabold italic text-highlight">
-                {score}
-              </p>
+      <div className="flex h-screen flex-row flex-wrap items-center justify-center overflow-hidden md:gap-8">
+        {isMobile && (
+          <div className="grid w-full gap-2 p-2">
+            <div className="grid grid-flow-col grid-cols-2 gap-4">
+              <Score />
+              <Level />
             </div>
-          </FormContainer>
 
-          <FormContainer title="Level">
-            <div className="text-center align-middle">
-              <p className="cursor-default select-none text-7xl font-extrabold italic text-secondary">
-                {level}
-              </p>
+            <div>
+              <NextBlocks />
             </div>
-          </FormContainer>
-
-          <div className="grid grid-flow-col gap-2">
-            <Button isDisabled={gameRunning} onClick={onGameStart}>
-              <FontAwesomeIcon
-                className={gameRunning ? 'text-tertiary' : 'text-primary'}
-                icon={faPlay}
-              />
-            </Button>
-            <Button isDisabled={!gameRunning} onClick={onPause}>
-              <FontAwesomeIcon
-                className={gameRunning ? 'text-primary' : 'text-tertiary'}
-                icon={faPause}
-              />
-            </Button>
-            <Button onClick={onGameReset}>
-              <FontAwesomeIcon className="text-primary" icon={faRotateRight} />
-            </Button>
-            <Button isDisabled={gameRunning} onClick={onToggleModal}>
-              <FontAwesomeIcon
-                className={gameRunning ? 'text-tertiary' : 'text-primary'}
-                icon={faGear}
-              />
-            </Button>
           </div>
-        </div>
+        )}
+
+        <GameBoard />
+        {!isMobile && (
+          <div className="flex flex-col justify-between gap-4">
+            <NextBlocks />
+
+            <Score />
+
+            <Level />
+
+            <GameControlButtons onToggleModal={onToggleModal} />
+          </div>
+        )}
+        {isMobile && (
+          <div className="w-full p-2">
+            <GameControlButtons onToggleModal={onToggleModal} />
+          </div>
+        )}
       </div>
       <SettingModal
         onCloseModal={() => setIsModalOpen(false)}

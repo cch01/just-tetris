@@ -86,6 +86,7 @@ export type BlockState = {
   }
   occupied: boolean
   locked: boolean
+  hidden: boolean
 }
 
 type SizeClass = {

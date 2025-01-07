@@ -50,7 +50,8 @@ export const generateBoardMatrix = (
       row.push({
         occupied: false,
         colorScheme,
-        locked: false
+        locked: false,
+        hidden: r < 4
       })
     }
     board.push(row)

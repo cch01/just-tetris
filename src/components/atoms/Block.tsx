@@ -5,9 +5,10 @@ import { memo } from 'react'
 type BlocKProps = {
   color: keyof typeof BLOCK_COLOR_SCHEMES
   size?: 'sm' | 'md' | 'lg'
+  hidden?: boolean
 }
 
-const Block: React.FC<BlocKProps> = memo(({ color, size = 'lg' }) => {
+const Block: React.FC<BlocKProps> = memo(({ hidden, color, size = 'lg' }) => {
   const colors = BLOCK_COLOR_SCHEMES[color]
 
   const sizeClasses = sizeClassesMapper[size]
@@ -17,7 +18,8 @@ const Block: React.FC<BlocKProps> = memo(({ color, size = 'lg' }) => {
       className={clsx(
         'relative  block  perspective-[100px]',
         colors.center,
-        sizeClasses.size
+        sizeClasses.size,
+        hidden && 'hidden'
       )}
     >
       <div
