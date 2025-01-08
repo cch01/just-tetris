@@ -56,11 +56,11 @@ export const BLOCK_COLOR_SCHEMES = {
     schemeName: 'red'
   },
   gray: {
-    center: 'bg-gray-500',
-    top: 'bg-gray-400',
-    left: 'bg-gray-300',
-    right: 'bg-gray-600',
-    bottom: 'bg-gray-700',
+    center: 'bg-zinc-600',
+    top: 'bg-zinc-500',
+    left: 'bg-zinc-400',
+    right: 'bg-zinc-700',
+    bottom: 'bg-zinc-800',
     schemeName: 'gray'
   },
   transparent: {

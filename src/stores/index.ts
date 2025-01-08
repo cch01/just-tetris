@@ -1,7 +1,7 @@
 import { TetrisStore } from './TetrisStore'
 
 const stores = {
-  tetrisStore: new TetrisStore(20, 16, 10)
+  tetrisStore: new TetrisStore(20, 14, 2)
 }
 
 export const useStores = () => stores
