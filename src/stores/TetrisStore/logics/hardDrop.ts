@@ -47,7 +47,7 @@ const getClosestBlockToBottomPairs = (
   return closestBlockToBottomPairs
 }
 
-export const hardDrop = (
+export const getHardDropCoordinates = (
   currentShapeCoordinates: Coordinate[],
   boardMatrix: BlockState[][]
 ) => {

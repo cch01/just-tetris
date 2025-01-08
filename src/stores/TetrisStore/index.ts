@@ -16,7 +16,7 @@ import {
   generateBoardMatrix,
   getRandomShape
 } from './logics/gameBoard'
-import { hardDrop } from './logics/hardDrop'
+import { getHardDropCoordinates } from './logics/hardDrop'
 import { moveHorizontalLogics } from './logics/moveHorizontal'
 import { rotateShapeLogics } from './logics/rotate'
 import { sinkLogics } from './logics/sink'
@@ -89,6 +89,17 @@ export class TetrisStore {
       this.boardMatrix[row][col].occupied = false
     }
 
+    this.removeAllShadows()
+
+    const hardDropPredictions = getHardDropCoordinates(
+      targetCoordinates,
+      this.boardMatrix
+    )
+
+    for (const { col, row } of hardDropPredictions) {
+      this.boardMatrix[row][col].colorScheme = BLOCK_COLOR_SCHEMES.shadow
+    }
+
     for (const { col, row } of targetCoordinates) {
       this.boardMatrix[row][col].colorScheme = BLOCK_COLOR_SCHEMES[targetColor]
       this.boardMatrix[row][col].occupied = ['gray', 'transparent'].some(
@@ -98,6 +109,16 @@ export class TetrisStore {
     }
 
     this.updateCurrentShapeCoordinate(targetCoordinates)
+  }
+
+  private removeAllShadows() {
+    this.boardMatrix.forEach((row) =>
+      row.forEach((block) => {
+        if (block.colorScheme.schemeName === 'shadow') {
+          block.colorScheme = BLOCK_COLOR_SCHEMES.gray
+        }
+      })
+    )
   }
 
   private lockAllOccupiedBlocks() {
@@ -183,7 +204,7 @@ export class TetrisStore {
   hardDrop() {
     if (!this.gameRunning || this.justCollided) return
 
-    const newCoordinates = hardDrop(
+    const newCoordinates = getHardDropCoordinates(
       this.shapeQueue[0].blockCoordinates,
       this.boardMatrix
     )

@@ -70,6 +70,14 @@ export const BLOCK_COLOR_SCHEMES = {
     right: 'bg-transparent',
     bottom: 'bg-transparent',
     schemeName: 'transparent'
+  },
+  shadow: {
+    center: 'bg-zinc-400',
+    top: 'bg-zinc-300',
+    left: 'bg-zinc-200',
+    right: 'bg-zinc-500',
+    bottom: 'bg-zinc-600',
+    schemeName: 'shadow'
   }
 } as const
 
