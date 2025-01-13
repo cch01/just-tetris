@@ -6,7 +6,8 @@ import { Score } from 'components/molecules/Score'
 import { SettingModal } from 'components/molecules/SettingModal'
 import useDimensions from 'hooks/useDimensions'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
-import useTouchActions from 'hooks/useTouchActions'
+import { useTap } from 'hooks/useTap'
+import { useTouchMove } from 'hooks/useTouchMove'
 import _throttle from 'lodash/throttle'
 import { observer } from 'mobx-react-lite'
 import { useCallback, useEffect, useState } from 'react'
@@ -19,7 +20,15 @@ const App = observer(() => {
     [setIsModalOpen]
   )
   const {
-    tetrisStore: { rotateShape, moveBlock, hardDrop, setWidth }
+    tetrisStore: {
+      rotateShape,
+      moveBlock,
+      hardDrop,
+      setWidth,
+      boardWidth,
+      shapeQueue,
+      touchMoveHorizontal
+    }
   } = useStores()
 
   const { isMobile } = useDimensions()
@@ -48,29 +57,18 @@ const App = observer(() => {
     _throttle(hardDrop, 500, { leading: true, trailing: false }),
     [hardDrop]
   )
-
-  const onPan = useCallback(
-    _throttle(
-      (panEvent: { deltaX: number; deltaY: number; event: TouchEvent }) => {
-        const isMovingY = Math.abs(panEvent.deltaY) > 30 && panEvent.deltaY > 0
-
-        if (isMovingY) {
-          throttledHardDrop()
-        } else {
-          moveBlock(panEvent.deltaX > 0 ? 'right' : 'left')
-        }
-      },
-      100,
-      { leading: true, trailing: false }
-    ),
-    [moveBlock, throttledHardDrop]
+  useTouchMove(
+    boardWidth,
+    shapeQueue[0].blockCoordinates,
+    touchMoveHorizontal,
+    throttledHardDrop
   )
 
   const onTap = useCallback(() => {
     rotateShape('clockwise')
   }, [rotateShape])
 
-  useTouchActions(onPan, onTap)
+  useTap(onTap)
 
   useEffect(() => {
     if (isMobile) {

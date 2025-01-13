@@ -1,8 +1,9 @@
 import { faAngleUp, faArrowRotateLeft } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import clsx from 'clsx'
-import { Hr } from 'components/atoms/Hr'
 import { useCallback, useState } from 'react'
+
+import { Hr } from '../Hr'
 
 interface FormContainerProps {
   title: string

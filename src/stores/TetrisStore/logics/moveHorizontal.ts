@@ -6,14 +6,16 @@ import { checkIsOutBound } from 'utils/checkIsOutBound'
 export const moveHorizontalLogics = (
   direction: 'left' | 'right',
   currentShapeState: ShapeProperty,
-  boardMatrix: BlockState[][]
+  boardMatrix: BlockState[][],
+  distance = 1
 ) => {
   const boardHeight = boardMatrix.length
   const boardWidth = boardMatrix[0].length
 
   const movedCoordinations = moveShapeHorizontal(
     currentShapeState.blockCoordinates,
-    direction
+    direction,
+    distance
   )
 
   const isOutBound = checkIsOutBound(
@@ -38,9 +40,10 @@ export const moveHorizontalLogics = (
 
 const moveShapeHorizontal = (
   blockCoordinates: Coordinate[],
-  direction: 'left' | 'right'
+  direction: 'left' | 'right',
+  distance = 1
 ) => {
-  const adjustment = direction === 'left' ? -1 : 1
+  const adjustment = direction === 'left' ? -distance : distance
 
   const newCoordinations = blockCoordinates.map(({ row, col }) => ({
     row,

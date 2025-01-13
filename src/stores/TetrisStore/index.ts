@@ -178,7 +178,7 @@ export class TetrisStore {
     })
   }
 
-  moveBlock(direction: 'left' | 'right') {
+  moveBlock(direction: 'left' | 'right', distance = 1) {
     if (!this.gameRunning || this.justCollided) return
 
     const currentShapeState = this.shapeQueue[0]
@@ -188,7 +188,8 @@ export class TetrisStore {
     const { moved, movedCoordinations } = moveHorizontalLogics(
       direction,
       currentShapeState,
-      this.boardMatrix
+      this.boardMatrix,
+      distance
     )
 
     if (!moved) return
@@ -197,6 +198,21 @@ export class TetrisStore {
       prevCoordinates,
       targetColor: currentShapeState.color,
       targetCoordinates: movedCoordinations,
+      lockBlocks: false
+    })
+  }
+
+  touchMoveHorizontal(targetCoordinates: Coordinate[]) {
+    if (!this.gameRunning || this.justCollided) return
+
+    const currentShapeState = this.shapeQueue[0]
+
+    const prevCoordinates = this.shapeQueue[0].blockCoordinates
+
+    this.refreshBoard({
+      prevCoordinates,
+      targetColor: currentShapeState.color,
+      targetCoordinates,
       lockBlocks: false
     })
   }

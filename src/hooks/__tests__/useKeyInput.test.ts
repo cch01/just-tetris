@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { act } from 'react-dom/test-utils'
+import { act } from 'react'
 import { vi } from 'vitest'
 
 import { Key, useKeyInput } from '../useKeyInput' // Adjust the import path
@@ -61,7 +61,7 @@ describe('useKeyInput', () => {
     expect(addEventListenerSpy).toHaveBeenCalledWith(
       'keydown',
       expect.any(Function),
-      { passive: true }
+      { passive: false }
     )
 
     // Unmount the hook and check if the event listener was removed
