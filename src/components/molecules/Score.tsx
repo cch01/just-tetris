@@ -10,7 +10,7 @@ export const Score: React.FC = observer(() => {
   return (
     <FormContainer title="Score">
       <div className="text-center align-middle">
-        <p className="cursor-default select-none text-3xl font-extrabold italic text-highlight md:text-7xl">
+        <p className="cursor-default select-none text-2xl font-extrabold italic text-highlight md:text-7xl">
           {score}
         </p>
       </div>

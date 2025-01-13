@@ -43,7 +43,7 @@ export const FormContainer: React.FC<FormContainerProps> = ({
     >
       <div className="flex w-full flex-row items-center justify-between">
         <span
-          className="cursor-pointer text-sm font-bold italic text-primary md:text-lg"
+          className="cursor-pointer text-xs font-bold italic text-primary md:text-lg"
           onClick={(e) => (collapsible ? onToggleCollapse(e) : null)}
           role="heading"
         >

@@ -5,10 +5,11 @@ interface ButtonProps {
   children: React.ReactNode | string
   onClick: React.MouseEventHandler<HTMLButtonElement>
   isDisabled?: boolean
+  size?: 'md' | 'sm'
 }
 
 export const Button: React.FC<ButtonProps> = memo(
-  ({ children, onClick, isDisabled }) => {
+  ({ size = 'md', children, onClick, isDisabled }) => {
     const child =
       typeof children === 'string' ? (
         <div
@@ -28,10 +29,11 @@ export const Button: React.FC<ButtonProps> = memo(
         disabled={isDisabled}
         onClick={onClick}
         className={clsx(
-          `min-w-20 rounded-md border border-border p-2 transition-colors duration-75 ease-in`,
+          `min-w-10 rounded-md border border-border transition-colors duration-75 ease-in md:min-w-20`,
           isDisabled
             ? 'cursor-not-allowed bg-bg-alternative'
-            : 'hover:bg-bg-secondary'
+            : 'hover:bg-bg-secondary',
+          size === 'md' ? 'p-2' : 'p-1'
         )}
       >
         {child}

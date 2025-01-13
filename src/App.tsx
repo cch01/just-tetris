@@ -78,7 +78,9 @@ const App = observer(() => {
 
   return (
     <>
-      <div className="flex h-screen flex-row flex-wrap items-center justify-center overflow-hidden md:gap-8">
+      <img src="./tetris_banner.png" className="m-auto max-h-40" />
+
+      <div className="flex min-h-[85vh] flex-row flex-wrap items-center justify-center overflow-hidden md:gap-8">
         {isMobile && (
           <div className="grid w-full gap-2 p-2">
             <div className="grid grid-flow-col grid-cols-2 gap-4">

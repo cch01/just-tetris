@@ -1,5 +1,6 @@
 import { Block } from 'components/atoms/Block'
 import { BlockState } from 'constants/block'
+import useDimensions from 'hooks/useDimensions'
 import { memo } from 'react'
 
 interface NextBlockPreviewProps {
@@ -8,9 +9,10 @@ interface NextBlockPreviewProps {
 
 export const NextBlockPreview: React.FC<NextBlockPreviewProps> = memo(
   ({ blocksMatrix }) => {
+    const { isMobile } = useDimensions()
     return (
-      <div className="flex h-20 w-32 items-center justify-center">
-        <div>
+      <div className="flex w-32 items-center justify-center">
+        <div className="p-2 md:p-4">
           {blocksMatrix.map((row, rowIdx) => (
             <div key={`board-row-${rowIdx}`} className="flex">
               {row.map((block, blockIdx) => {
@@ -18,6 +20,7 @@ export const NextBlockPreview: React.FC<NextBlockPreviewProps> = memo(
                   <Block
                     key={`block-${row}-${blockIdx}`}
                     color={block.colorScheme.schemeName}
+                    size={isMobile ? 'sm' : 'md'}
                   />
                 )
               })}

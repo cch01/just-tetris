@@ -9,7 +9,7 @@ export const Level: React.FC = observer(() => {
   return (
     <FormContainer title="Level">
       <div className="text-center align-middle">
-        <p className="cursor-default select-none text-3xl font-extrabold italic text-secondary md:text-7xl">
+        <p className="cursor-default select-none text-2xl font-extrabold italic text-secondary md:text-7xl">
           {level}
         </p>
       </div>
