@@ -10,7 +10,7 @@
     "types": "bash -c tsc --project ./tsconfig.json --noEmit",
     "prepare": "husky",
     "lint-staged": "lint-staged",
-    "test": "vitest --coverage"
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
