@@ -22,93 +22,80 @@ import { rotateShapeLogics } from './logics/rotate'
 import { sinkLogics } from './logics/sink'
 
 export class TetrisStore {
+  score = 0
+  combo = 0
+  level = 1
+  boardHeight: number
+  boardWidth: number
+  framePerSecond: number
+  userSelectedFramePerSecond: number
+  gameRunning = false
+  gameTimer: NodeJS.Timeout | null = null
+
+  boardMatrix: BlockState[][]
+  shapeQueue: ShapeProperty[]
+  private justCollided = false
+
   constructor(boardHeight: number, boardWidth: number, framePerSecond: number) {
     this.boardHeight = boardHeight
     this.boardWidth = boardWidth
     this.framePerSecond = framePerSecond
     this.userSelectedFramePerSecond = framePerSecond
-    this.resetAll()
+    this.boardMatrix = this.generateInitialBoard()
+    this.shapeQueue = this.generateInitialQueue()
+
     makeAutoObservable(this, {}, { autoBind: true })
   }
 
-  private justCollided = false
+  private generateInitialBoard(): BlockState[][] {
+    return generateBoardMatrix(this.boardHeight, this.boardWidth, 'init')
+  }
 
-  score = 0
-  combo = 0
-  level = 1
-
-  boardHeight = 24
-  boardWidth = 10
-  gameRunning = false
-  framePerSecond = 1
-  userSelectedFramePerSecond = 1
-  gameTimer: NodeJS.Timeout | null = null
-
-  boardMatrix: BlockState[][] = generateBoardMatrix(
-    this.boardHeight,
-    this.boardWidth,
-    'init'
-  )
-
-  shapeQueue: ShapeProperty[] = [
-    getRandomShape(this.boardWidth),
-    getRandomShape(this.boardWidth),
-    getRandomShape(this.boardWidth)
-  ]
+  private generateInitialQueue(): ShapeProperty[] {
+    return [
+      getRandomShape(this.boardWidth),
+      getRandomShape(this.boardWidth),
+      getRandomShape(this.boardWidth)
+    ]
+  }
 
   private resetAll() {
-    this.boardMatrix = generateBoardMatrix(
-      this.boardHeight,
-      this.boardWidth,
-      'init'
-    )
-    this.resetQueue()
+    this.boardMatrix = this.generateInitialBoard()
+    this.shapeQueue = this.generateInitialQueue()
     this.score = 0
     this.combo = 0
     this.level = 1
+    this.justCollided = false
   }
 
   private refreshBoard({
     prevCoordinates,
     targetColor,
-    targetCoordinates,
-    lockBlocks
+    targetCoordinates
   }: RefreshBoardInputs) {
-    const targetPositionBlocked = targetCoordinates.some(
+    if (this.isPositionBlocked(targetCoordinates)) return
+
+    this.clearPreviousCoordinates(prevCoordinates)
+    this.removeAllShadows()
+    this.showHardDropShadow(targetCoordinates)
+    this.updateBoardWithNewCoordinates(targetCoordinates, targetColor)
+    this.updateCurrentShapeCoordinates(targetCoordinates)
+  }
+
+  private isPositionBlocked(targetCoordinates: Coordinate[]): boolean {
+    return targetCoordinates.some(
       ({ row, col }) => this.boardMatrix[row][col].locked
     )
+  }
 
-    if (targetPositionBlocked) return
-
-    for (const { col, row } of prevCoordinates) {
-      const unSeenRow = row <= NON_PLAY_FIELD_BOTTOM_ROW_IDX
-
-      this.boardMatrix[row][col].colorScheme = unSeenRow
+  private clearPreviousCoordinates(prevCoordinates: Coordinate[]) {
+    for (const { row, col } of prevCoordinates) {
+      const isAboveVisibleField = row <= NON_PLAY_FIELD_BOTTOM_ROW_IDX
+      this.boardMatrix[row][col].colorScheme = isAboveVisibleField
         ? BLOCK_COLOR_SCHEMES.transparent
         : BLOCK_COLOR_SCHEMES.gray
       this.boardMatrix[row][col].occupied = false
     }
-
-    this.removeAllShadows()
-
-    const hardDropPredictions = getHardDropCoordinates(
-      targetCoordinates,
-      this.boardMatrix
-    )
-
-    for (const { col, row } of hardDropPredictions) {
-      this.boardMatrix[row][col].colorScheme = BLOCK_COLOR_SCHEMES.shadow
-    }
-
-    for (const { col, row } of targetCoordinates) {
-      this.boardMatrix[row][col].colorScheme = BLOCK_COLOR_SCHEMES[targetColor]
-      this.boardMatrix[row][col].occupied = ['gray', 'transparent'].some(
-        (color) => color !== targetColor
-      )
-      if (lockBlocks) this.boardMatrix[row][col].locked = true
-    }
-
-    this.updateCurrentShapeCoordinate(targetCoordinates)
   }
 
   private removeAllShadows() {
@@ -121,6 +108,31 @@ export class TetrisStore {
     )
   }
 
+  private showHardDropShadow(targetCoordinates: Coordinate[]) {
+    const hardDropCoords = getHardDropCoordinates(
+      targetCoordinates,
+      this.boardMatrix
+    )
+    for (const { row, col } of hardDropCoords) {
+      this.boardMatrix[row][col].colorScheme = BLOCK_COLOR_SCHEMES.shadow
+    }
+  }
+
+  private updateBoardWithNewCoordinates(
+    targetCoordinates: Coordinate[],
+    targetColor: string
+  ) {
+    for (const { row, col } of targetCoordinates) {
+      this.boardMatrix[row][col].colorScheme =
+        BLOCK_COLOR_SCHEMES[targetColor as keyof typeof BLOCK_COLOR_SCHEMES]
+      this.boardMatrix[row][col].occupied = true
+    }
+  }
+
+  private updateCurrentShapeCoordinates(targetCoordinates: Coordinate[]) {
+    this.shapeQueue[0].blockCoordinates = targetCoordinates
+  }
+
   private lockAllOccupiedBlocks() {
     this.boardMatrix.forEach((row) =>
       row.forEach((block) => {
@@ -129,65 +141,65 @@ export class TetrisStore {
     )
   }
 
-  private updateCurrentShapeCoordinate(targetCoordinate: Coordinate[]) {
-    this.shapeQueue[0].blockCoordinates = targetCoordinate
+  private handleRowClearing() {
+    const burstedRows = checkBurstedRows(this.boardMatrix)
+    if (burstedRows.length) {
+      this.boardMatrix = burstAndInsertBlankLines(this.boardMatrix, burstedRows)
+      this.updateScore(burstedRows.length)
+      this.combo++
+      this.checkLevelUp()
+    } else {
+      this.combo = 0
+    }
   }
 
-  private resetQueue() {
-    this.shapeQueue = [
-      getRandomShape(this.boardWidth),
-      getRandomShape(this.boardWidth),
-      getRandomShape(this.boardWidth)
-    ]
+  private updateScore(clearedRows: number) {
+    this.score +=
+      (SCORES[clearedRows] || SCORES[4]) + this.combo * SUCCESSIVE_COMBO_BONUS
+  }
+
+  private checkLevelUp() {
+    if (Math.floor(this.score / LEVEL_UP_SCORE_THRESHOLD) > this.level) {
+      this.level++
+      this.framePerSecond += 1.5
+    }
   }
 
   private dequeueAndEnqueueShapes() {
     this.shapeQueue.shift()
-
-    const newShape = getRandomShape(this.boardWidth)
-
-    this.shapeQueue.push(newShape)
+    this.shapeQueue.push(getRandomShape(this.boardWidth))
   }
 
   rotateShape(direction: 'clockwise' | 'counterclockwise') {
-    const currentShapeState = this.shapeQueue[0]
-
     if (
-      currentShapeState.name === 'OShape' ||
+      !this.gameRunning ||
       this.justCollided ||
-      !this.gameRunning
-    ) {
+      this.shapeQueue[0].name === 'OShape'
+    )
       return
-    }
 
     const prevCoordinates = this.shapeQueue[0].blockCoordinates
-
     const { rotated, rotatedCoordinates } = rotateShapeLogics(
       direction,
-      currentShapeState,
+      this.shapeQueue[0],
       this.boardMatrix
     )
-
     if (!rotated) return
 
     this.refreshBoard({
       prevCoordinates,
-      targetColor: currentShapeState.color,
-      targetCoordinates: rotatedCoordinates,
-      lockBlocks: false
+      targetColor: this.shapeQueue[0].color,
+      targetCoordinates: rotatedCoordinates
     })
   }
 
   moveBlock(direction: 'left' | 'right', distance = 1) {
     if (!this.gameRunning || this.justCollided) return
 
-    const currentShapeState = this.shapeQueue[0]
-
     const prevCoordinates = this.shapeQueue[0].blockCoordinates
-
     const { moved, movedCoordinations } = moveHorizontalLogics(
       direction,
-      currentShapeState,
+      this.shapeQueue[0],
       this.boardMatrix,
       distance
     )
@@ -196,106 +208,89 @@ export class TetrisStore {
 
     this.refreshBoard({
       prevCoordinates,
-      targetColor: currentShapeState.color,
-      targetCoordinates: movedCoordinations,
-      lockBlocks: false
-    })
-  }
-
-  touchMoveHorizontal(targetCoordinates: Coordinate[]) {
-    if (!this.gameRunning || this.justCollided) return
-
-    const currentShapeState = this.shapeQueue[0]
-
-    const prevCoordinates = this.shapeQueue[0].blockCoordinates
-
-    this.refreshBoard({
-      prevCoordinates,
-      targetColor: currentShapeState.color,
-      targetCoordinates,
-      lockBlocks: false
+      targetColor: this.shapeQueue[0].color,
+      targetCoordinates: movedCoordinations
     })
   }
 
   hardDrop() {
     if (!this.gameRunning || this.justCollided) return
 
-    const newCoordinates = getHardDropCoordinates(
+    const hardDropCoords = getHardDropCoordinates(
       this.shapeQueue[0].blockCoordinates,
       this.boardMatrix
     )
-
     this.refreshBoard({
-      lockBlocks: true,
       prevCoordinates: this.shapeQueue[0].blockCoordinates,
       targetColor: this.shapeQueue[0].color,
-      targetCoordinates: newCoordinates
+      targetCoordinates: hardDropCoords
     })
-
-    this.justCollided = true
-  }
-
-  onCollided() {
     this.justCollided = true
   }
 
   sink() {
     if (this.justCollided) {
       this.justCollided = false
-
       this.lockAllOccupiedBlocks()
-
-      const burstedRowIdxs = checkBurstedRows(this.boardMatrix)
-
-      if (burstedRowIdxs.length) {
-        const newBoard = burstAndInsertBlankLines(
-          this.boardMatrix,
-          burstedRowIdxs
-        )
-        this.boardMatrix = newBoard
-        this.score +=
-          (SCORES[burstedRowIdxs.length] || SCORES[4]) +
-          this.combo * SUCCESSIVE_COMBO_BONUS
-        this.combo++
-
-        if (this.score / LEVEL_UP_SCORE_THRESHOLD > this.level) {
-          this.level++
-          this.framePerSecond += 1.5
-        }
-      } else {
-        this.combo = 0
-      }
-
-      const nextShape = this.shapeQueue[1].blockCoordinates
-
-      const isGameOver = checkIsGameOver(nextShape, this.boardMatrix)
-
-      if (isGameOver) {
+      this.handleRowClearing()
+      if (
+        checkIsGameOver(this.shapeQueue[1].blockCoordinates, this.boardMatrix)
+      ) {
         alert('Game Over')
-        return this.onGameReset()
+        this.onGameReset()
+        return
       }
-
       this.dequeueAndEnqueueShapes()
       return
     }
 
-    const currentShapeState = this.shapeQueue[0]
-
     const sankResult = sinkLogics(
-      currentShapeState,
+      this.shapeQueue[0],
       this.boardMatrix,
       this.onCollided
     )
 
     if (!sankResult) return
 
-    const { lockBlocks, sankCurrShapeState } = sankResult
+    this.refreshBoard({
+      prevCoordinates: this.shapeQueue[0].blockCoordinates,
+      targetColor: sankResult.sankCurrShapeState.color,
+      targetCoordinates: sankResult.sankCurrShapeState.blockCoordinates
+    })
+  }
+  private onCollided() {
+    this.justCollided = true
+  }
+
+  onGameReset() {
+    this.gameRunning = false
+    if (this.gameTimer) clearInterval(this.gameTimer)
+    this.gameTimer = null
+    this.resetAll()
+  }
+
+  onGameStart() {
+    if (this.gameRunning) return
+
+    this.gameRunning = true
+    this.gameTimer = setInterval(() => this.sink(), 1000 / this.framePerSecond)
+  }
+
+  onPause() {
+    if (this.gameRunning && this.gameTimer) {
+      clearInterval(this.gameTimer)
+      this.gameTimer = null
+      this.gameRunning = false
+    }
+  }
+
+  touchMoveHorizontal(targetCoordinates: Coordinate[]) {
+    if (!this.gameRunning || this.justCollided) return
 
     this.refreshBoard({
-      prevCoordinates: currentShapeState.blockCoordinates,
-      targetCoordinates: sankCurrShapeState.blockCoordinates,
-      targetColor: sankCurrShapeState.color,
-      lockBlocks
+      prevCoordinates: this.shapeQueue[0].blockCoordinates,
+      targetColor: this.shapeQueue[0].color,
+      targetCoordinates
     })
   }
 
@@ -315,32 +310,5 @@ export class TetrisStore {
     if (!fps || fps === this.userSelectedFramePerSecond) return
     this.framePerSecond = fps
     this.userSelectedFramePerSecond = fps
-  }
-
-  onGameReset() {
-    this.gameRunning = false
-    this.gameTimer && clearInterval(this.gameTimer)
-    this.gameTimer = null
-    this.framePerSecond = this.userSelectedFramePerSecond
-    this.resetAll()
-  }
-
-  onGameStart() {
-    if (this.gameRunning) return
-
-    this.gameRunning = true
-    this.gameTimer = setInterval(() => {
-      this.sink()
-    }, 1000 / this.framePerSecond)
-  }
-
-  onPause() {
-    if (!this.gameRunning) return
-    if (this.gameTimer) {
-      clearInterval(this.gameTimer)
-      this.gameTimer = null
-    }
-    this.gameRunning = false
-    return
   }
 }

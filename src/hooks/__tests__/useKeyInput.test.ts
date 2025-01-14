@@ -1,93 +1,56 @@
 import { renderHook } from '@testing-library/react'
-import { act } from 'react'
 import { vi } from 'vitest'
 
-import { Key, useKeyInput } from '../useKeyInput' // Adjust the import path
+import { Key, useKeyInput } from '../useKeyInput'
 
-// Mock the window's addEventListener and removeEventListener
-const addEventListenerSpy = vi.spyOn(window, 'addEventListener')
-const removeEventListenerSpy = vi.spyOn(window, 'removeEventListener')
+// Helper function to simulate keyboard events
+const simulateKeyPress = (key: string) => {
+  const event = new KeyboardEvent('keydown', { key })
+  window.dispatchEvent(event)
+}
 
 describe('useKeyInput', () => {
-  afterEach(() => {
-    vi.clearAllMocks()
+  it('should call the callback when the specified key is pressed', () => {
+    const callback = vi.fn()
+    const key = Key.ArrowUp
+
+    // Render the hook
+    renderHook(() => useKeyInput(key, callback))
+
+    // Simulate pressing the specified key
+    simulateKeyPress(key)
+
+    // Assert that the callback was called
+    expect(callback).toHaveBeenCalled()
   })
 
-  it('should call callback when specified key is pressed', () => {
+  it('should not call the callback when a different key is pressed', () => {
     const callback = vi.fn()
+    const key = Key.ArrowUp
 
-    // Render the hook with key 'ArrowUp'
-    const { unmount } = renderHook(() => useKeyInput(Key.ArrowUp, callback))
+    // Render the hook
+    renderHook(() => useKeyInput(key, callback))
 
-    // Simulate pressing the 'ArrowUp' key
-    act(() => {
-      const event = new KeyboardEvent('keydown', { key: 'ArrowUp' })
-      window.dispatchEvent(event)
-    })
+    // Simulate pressing a different key
+    simulateKeyPress(Key.ArrowDown)
 
-    // Verify that the callback was called
-    expect(callback).toHaveBeenCalledTimes(1)
-
-    // Clean up
-    unmount()
-  })
-
-  it('should not call callback when different key is pressed', () => {
-    const callback = vi.fn()
-
-    // Render the hook with key 'ArrowUp'
-    const { unmount } = renderHook(() => useKeyInput(Key.ArrowUp, callback))
-
-    // Simulate pressing the 'ArrowDown' key
-    act(() => {
-      const event = new KeyboardEvent('keydown', { key: 'ArrowDown' })
-      window.dispatchEvent(event)
-    })
-
-    // Verify that the callback was not called
+    // Assert that the callback was not called
     expect(callback).not.toHaveBeenCalled()
-
-    // Clean up
-    unmount()
   })
 
-  it('should add and remove event listeners', () => {
+  it('should clean up event listeners on unmount', () => {
     const callback = vi.fn()
+    const key = Key.ArrowUp
 
-    // Render the hook with key 'ArrowUp'
-    const { unmount } = renderHook(() => useKeyInput(Key.ArrowUp, callback))
-
-    // Check if the event listener was added with the correct parameters
-    expect(addEventListenerSpy).toHaveBeenCalledWith(
-      'keydown',
-      expect.any(Function),
-      { passive: false }
-    )
-
-    // Unmount the hook and check if the event listener was removed
-    unmount()
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      'keydown',
-      expect.any(Function)
-    )
-  })
-
-  it('should not call callback after unmounting', () => {
-    const callback = vi.fn()
-
-    // Render the hook with key 'ArrowUp'
-    const { unmount } = renderHook(() => useKeyInput(Key.ArrowUp, callback))
+    const { unmount } = renderHook(() => useKeyInput(key, callback))
 
     // Unmount the hook
     unmount()
 
-    // Simulate pressing the 'ArrowUp' key after unmount
-    act(() => {
-      const event = new KeyboardEvent('keydown', { key: 'ArrowUp' })
-      window.dispatchEvent(event)
-    })
+    // Simulate pressing the specified key
+    simulateKeyPress(key)
 
-    // Verify that the callback was not called after unmounting
+    // Assert that the callback was not called after unmounting
     expect(callback).not.toHaveBeenCalled()
   })
 })

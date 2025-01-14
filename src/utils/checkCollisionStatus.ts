@@ -5,14 +5,12 @@ export type CheckCollisionStatusInputs = {
   prevShapeCoordinates: Coordinate[]
   targetShapeCoordinates: Coordinate[]
   boardMatrix: BlockState[][]
-  mode: 'sink' | 'translation'
 }
 
 export const checkCollisionStatus = ({
   boardMatrix,
   prevShapeCoordinates,
-  targetShapeCoordinates,
-  mode
+  targetShapeCoordinates
 }: CheckCollisionStatusInputs) => {
   const hasCollision = targetShapeCoordinates.some(
     ({ row: targetRow, col: targetCol }) => {
@@ -31,12 +29,6 @@ export const checkCollisionStatus = ({
       if (isOccupiedByOther) {
         return true
       }
-
-      if (mode === 'sink' && boardMatrix[targetRow + 1]?.[targetCol].occupied) {
-        return true
-      }
-
-      if (targetRow === boardMatrix.length - 1) return true
     }
   )
   return { hasCollision }

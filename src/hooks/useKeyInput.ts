@@ -33,52 +33,22 @@ export enum Key {
   Z = 'z'
 }
 
-type KeyInputOptions = {
-  repeat?: boolean // Enable repeated callback execution
-  repeatDelay?: number // Delay between repeated executions (ms)
-}
-
-export const useKeyInput = (
-  key: Key,
-  callback: () => void,
-  options: KeyInputOptions = { repeat: true, repeatDelay: 150 }
-) => {
-  const { repeat, repeatDelay } = options
-  const intervalRef = useRef<NodeJS.Timeout | null>(null)
-
+export const useKeyInput = (key: Key, callback: () => void) => {
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === key) {
         event.preventDefault()
-        if (repeat && !intervalRef.current) {
-          callback()
-          intervalRef.current = setInterval(callback, repeatDelay)
-        } else callback()
+        callback()
       }
     },
-    [key, callback, repeat, repeatDelay]
-  )
-
-  const handleKeyRelease = useCallback(
-    (event: KeyboardEvent) => {
-      if (event.key === key && intervalRef.current) {
-        clearInterval(intervalRef.current)
-        intervalRef.current = null
-      }
-    },
-    [key]
+    [key, callback]
   )
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyPress, { passive: false })
-    window.addEventListener('keyup', handleKeyRelease, { passive: false })
 
     return () => {
       window.removeEventListener('keydown', handleKeyPress)
-      window.removeEventListener('keyup', handleKeyRelease)
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current)
-      }
     }
-  }, [handleKeyPress, handleKeyRelease])
+  }, [handleKeyPress])
 }

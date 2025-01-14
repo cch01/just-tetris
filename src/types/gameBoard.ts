@@ -5,7 +5,6 @@ export type RefreshBoardInputs = {
   targetCoordinates: Coordinate[]
   targetColor: ColorKeys
   prevCoordinates: Coordinate[]
-  lockBlocks: boolean
   callback?: () => void
 }
 

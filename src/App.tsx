@@ -33,25 +33,20 @@ const App = observer(() => {
 
   const { isMobile } = useDimensions()
 
-  useKeyInput(
-    Key.ArrowUp,
-    () => {
-      rotateShape('clockwise')
-    },
-    { repeat: false, repeatDelay: 1000 }
+  useKeyInput(Key.ArrowUp, () => {
+    rotateShape('clockwise')
+  })
+
+  const throttledMove = useCallback(
+    _throttle(moveBlock, 100, { leading: true, trailing: false }),
+    [hardDrop]
   )
 
-  useKeyInput(Key.ArrowLeft, () => {
-    moveBlock('left')
-  })
+  useKeyInput(Key.ArrowLeft, () => throttledMove('left'))
 
-  useKeyInput(Key.ArrowRight, () => {
-    moveBlock('right')
-  })
+  useKeyInput(Key.ArrowRight, () => throttledMove('right'))
 
-  useKeyInput(Key.ArrowDown, () => {
-    hardDrop()
-  })
+  useKeyInput(Key.ArrowDown, hardDrop)
 
   const throttledHardDrop = useCallback(
     _throttle(hardDrop, 500, { leading: true, trailing: false }),

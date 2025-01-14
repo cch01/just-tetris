@@ -29,8 +29,7 @@ export const moveHorizontalLogics = (
   const { hasCollision } = checkCollisionStatus({
     boardMatrix: boardMatrix,
     prevShapeCoordinates: currentShapeState.blockCoordinates,
-    targetShapeCoordinates: movedCoordinations,
-    mode: 'translation'
+    targetShapeCoordinates: movedCoordinations
   })
 
   if (hasCollision) return { moved: false, movedCoordinations: [] }

@@ -139,8 +139,7 @@ const checkIsRotatable = (
   const { hasCollision } = checkCollisionStatus({
     boardMatrix,
     prevShapeCoordinates: currentShapeState.blockCoordinates,
-    targetShapeCoordinates: rotatedCoordinates,
-    mode: 'translation'
+    targetShapeCoordinates: rotatedCoordinates
   })
 
   return !hasCollision && !isOutBound

@@ -1,7 +1,6 @@
 import { BlockState } from 'constants/block'
 import _ from 'lodash'
 import { ShapeProperty } from 'types/shape'
-import { checkCollisionStatus } from 'utils/checkCollisionStatus'
 import { checkIsAboveABlock } from 'utils/checkIsAboveABlock'
 
 export const sinkLogics = (
@@ -32,18 +31,5 @@ export const sinkLogics = (
     })
   )
 
-  const { hasCollision } = checkCollisionStatus({
-    prevShapeCoordinates: currentShapeState.blockCoordinates,
-    targetShapeCoordinates: sankCurrShapeState.blockCoordinates,
-    boardMatrix: boardMatrix,
-    mode: 'sink'
-  })
-
-  if (hasCollision) {
-    onCollided()
-  }
-
-  const lockBlocks = hasCollision
-
-  return { lockBlocks, sankCurrShapeState }
+  return { lockBlocks: false, sankCurrShapeState }
 }
