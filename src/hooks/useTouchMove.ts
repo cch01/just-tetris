@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { Coordinate } from 'types/shape'
 
+const START_THRESHOLD = 45
+const MIN_THRESHOLD = 10
+const THRESHOLD_DECAY = 5
+const HARD_DROP_COOLDOWN = 500
+
 /**
  * Hook to handle touch dragging logic for moving shapes in a Tetris-like game.
  * @param colCount Number of columns in the board
@@ -21,11 +26,6 @@ export const useTouchMove = (
   const accumulatedDeltaX = useRef(0)
   const moveCount = useRef(0)
   const lastHardDrop = useRef(0)
-
-  const START_THRESHOLD = 40
-  const MIN_THRESHOLD = 10
-  const THRESHOLD_DECAY = 5
-  const HARD_DROP_COOLDOWN = 500
 
   useEffect(() => {
     const handleTouchStart = (event: TouchEvent) => {
