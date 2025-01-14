@@ -118,7 +118,7 @@ describe('useTouchMove', () => {
       document.dispatchEvent(touchStartEventAfterCooldown)
 
       const touchMoveEventAfterCooldown = new TouchEvent('touchmove', {
-        touches: [{ clientX: 90, clientY: 50 }] as unknown as Touch[] // Dragging horizontally
+        touches: [{ clientX: 100, clientY: 50 }] as unknown as Touch[] // Dragging horizontally
       })
       document.dispatchEvent(touchMoveEventAfterCooldown)
     })
