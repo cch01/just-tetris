@@ -3,6 +3,6 @@
 @tailwind components;
 
 body {
-	@apply bg-bg-primary overflow-hidden;
+	@apply bg-bg-primary overflow-hidden select-none;
 	overscroll-behavior: none;
 }
