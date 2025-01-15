@@ -33,7 +33,10 @@ const App = observer(() => {
       highScore,
       onClearHighScore,
       boardHeight,
-      setHeight
+      setHeight,
+      onPause,
+      onGameStart,
+      gameRunning
     }
   } = useStores()
 
@@ -59,6 +62,7 @@ const App = observer(() => {
   useKeyInput(Key.ArrowRight, () => throttledMove('right'))
 
   useKeyInput(Key.ArrowDown, hardDrop)
+  useKeyInput(Key.Space, gameRunning ? onPause : onGameStart)
 
   const throttledHardDrop = useCallback(
     _throttle(hardDrop, 500, { leading: true, trailing: false }),

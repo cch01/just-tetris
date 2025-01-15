@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 
 export enum Key {
   ArrowUp = 'ArrowUp',
@@ -30,7 +30,10 @@ export enum Key {
   W = 'w',
   X = 'x',
   Y = 'y',
-  Z = 'z'
+  Z = 'z',
+  Enter = 'Enter',
+  Escape = 'Escape',
+  Space = ' '
 }
 
 export const useKeyInput = (key: Key, callback: () => void) => {

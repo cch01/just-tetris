@@ -1,5 +1,6 @@
 import { FormInputItem } from 'components/atoms/Form/FormInputItem'
 import { Modal } from 'components/atoms/Modal'
+import { Key, useKeyInput } from 'hooks/useKeyInput'
 import { observer } from 'mobx-react-lite'
 import { useEffect, useState } from 'react'
 import { useStores } from 'stores'
@@ -52,11 +53,15 @@ export const SettingModal: React.FC<SettingModalProps> = observer(
     }, [boardHeight, boardWidth, framePerSecond, isModalOpen])
 
     const onOk = () => {
+      if (!isModalOpen) return
       setFramePerSecond(states.framePerSecond)
       setHeight(states.boardHeight)
       setWidth(states.boardWidth)
       onCloseModal()
     }
+
+    useKeyInput(Key.Enter, onOk)
+    useKeyInput(Key.Escape, onCloseModal)
 
     return (
       <Modal
