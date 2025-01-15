@@ -16,6 +16,8 @@ interface FormInputItemProps {
   selectOnFocus?: boolean
   disabled?: boolean
   step?: number
+  min?: number
+  max?: number
 }
 export const FormInputItem: React.FC<FormInputItemProps> = ({
   suffix,
@@ -26,7 +28,9 @@ export const FormInputItem: React.FC<FormInputItemProps> = ({
   decimalScale = 2,
   selectOnFocus = true,
   disabled,
-  step = 1
+  step = 1,
+  min,
+  max
 }) => {
   const handleFocus: React.FocusEventHandler<HTMLInputElement> = (e) =>
     selectOnFocus && e.target.select()
@@ -51,6 +55,8 @@ export const FormInputItem: React.FC<FormInputItemProps> = ({
         decimalScale={decimalScale}
         onFocus={handleFocus}
         disabled={disabled}
+        min={min}
+        max={max}
       />
     </div>
   )

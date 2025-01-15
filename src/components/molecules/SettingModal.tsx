@@ -32,7 +32,7 @@ export const SettingModal: React.FC<SettingModalProps> = observer(
       if (Number.isNaN(valInt)) return
       setStates((oldVals) => ({
         ...oldVals,
-        [type]: valInt
+        [type]: Math.min(valInt, 50)
       }))
     }
 
@@ -70,12 +70,14 @@ export const SettingModal: React.FC<SettingModalProps> = observer(
             description="Width:"
             disabled={!!gameTimer}
             decimalScale={0}
+            max={50}
             onValueChange={(val) => onHandleUserInput('boardWidth', val)}
             value={states.boardWidth.toString()}
           />
           <FormInputItem
             description="Height:"
             disabled={!!gameTimer}
+            max={50}
             decimalScale={0}
             onValueChange={(val) => onHandleUserInput('boardHeight', val)}
             value={states.boardHeight.toString()}
