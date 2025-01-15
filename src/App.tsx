@@ -44,7 +44,7 @@ const App = observer(() => {
   const ref = useOutOfBounds({
     onOutOfBoundY: () => setHeight(boardHeight - 1),
     onOutOfBoundX: () => setWidth(boardWidth - 1),
-    offsetY: isMobile ? -70 : -50,
+    offsetY: isMobile ? -85 : -50,
     offsetX: isMobile ? -10 : -20
   })
 
