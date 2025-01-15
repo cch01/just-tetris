@@ -5,6 +5,7 @@ type DeviceType = 'mobile' | 'tablet' | 'desktop'
 
 interface UseDimensionsResult {
   windowWidth: number
+  windowHeight: number
   isMobile: boolean
   isTablet: boolean
   isDesktop: boolean
@@ -23,6 +24,7 @@ const getDeviceType = (width: number): DeviceType => {
 
 const useDimensions = (): UseDimensionsResult => {
   const [windowWidth, setWindowWidth] = useState<number>(window.innerWidth)
+  const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight)
   const [deviceType, setDeviceType] = useState<DeviceType>(
     getDeviceType(window.innerWidth)
   )
@@ -30,7 +32,9 @@ const useDimensions = (): UseDimensionsResult => {
   useEffect(() => {
     const handleResize = () => {
       const currentWidth = window.innerWidth
+      const currentHeight = window.innerHeight
       setWindowWidth(currentWidth)
+      setWindowHeight(currentHeight)
       setDeviceType(getDeviceType(currentWidth))
     }
 
@@ -45,6 +49,7 @@ const useDimensions = (): UseDimensionsResult => {
     isMobile: deviceType === 'mobile',
     isTablet: deviceType === 'tablet',
     isDesktop: deviceType === 'desktop',
+    windowHeight,
     deviceType
   }
 }

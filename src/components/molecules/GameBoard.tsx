@@ -4,30 +4,36 @@ import { observer } from 'mobx-react-lite'
 import { forwardRef } from 'react'
 import { useStores } from 'stores'
 
-const GameBoardComponent = forwardRef<HTMLDivElement, object>((props, ref) => {
-  const { tetrisStore } = useStores()
+interface GameBoardProps {
+  blockSize?: 'md' | 'sm' | 'lg'
+}
 
-  const { isMobile } = useDimensions()
+const GameBoardComponent = forwardRef<HTMLDivElement, GameBoardProps>(
+  ({ blockSize = 'lg' }, ref) => {
+    const { tetrisStore } = useStores()
 
-  return (
-    <div ref={ref}>
-      {tetrisStore.boardMatrix.map((row, rowIdx) => (
-        <div key={`board-row-${rowIdx}`} className="flex">
-          {row.map((block, blockIdx) => {
-            return (
-              <Block
-                key={`block-${row}-${blockIdx}`}
-                color={block.colorScheme.schemeName}
-                hidden={block.hidden}
-                size={(isMobile && 'md') || 'lg'}
-              />
-            )
-          })}
-        </div>
-      ))}
-    </div>
-  )
-})
+    const { isMobile } = useDimensions()
+
+    return (
+      <div ref={ref}>
+        {tetrisStore.boardMatrix.map((row, rowIdx) => (
+          <div key={`board-row-${rowIdx}`} className="flex">
+            {row.map((block, blockIdx) => {
+              return (
+                <Block
+                  key={`block-${row}-${blockIdx}`}
+                  color={block.colorScheme.schemeName}
+                  hidden={block.hidden}
+                  size={blockSize || (isMobile && 'sm') || 'lg'}
+                />
+              )
+            })}
+          </div>
+        ))}
+      </div>
+    )
+  }
+)
 
 GameBoardComponent.displayName = 'GameBoard'
 

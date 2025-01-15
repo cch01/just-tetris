@@ -107,24 +107,24 @@ type SizeClass = {
 
 export const sizeClassesMapper: Record<'sm' | 'md' | 'lg', SizeClass> = {
   sm: {
-    size: 'h-3 w-3',
-    top: 'bottom-[6px]',
-    bottom: 'top-[6px]',
-    left: 'right-[6px]',
-    right: 'left-[6px]'
+    size: 'h-4 w-4',
+    top: 'bottom-[8px]',
+    bottom: 'top-[8px]',
+    left: 'right-[8px]',
+    right: 'left-[8px]'
   },
   md: {
+    size: 'h-5 w-5',
+    top: 'bottom-[10px]',
+    bottom: 'top-[10px]',
+    left: 'right-[10px]',
+    right: 'left-[10px]'
+  },
+  lg: {
     size: 'h-6 w-6',
     top: 'bottom-[12px]',
     bottom: 'top-[12px]',
     left: 'right-[12px]',
     right: 'left-[12px]'
-  },
-  lg: {
-    size: 'h-7 w-7',
-    top: 'bottom-[14px]',
-    bottom: 'top-[14px]',
-    left: 'right-[14px]',
-    right: 'left-[14px]'
   }
 }
