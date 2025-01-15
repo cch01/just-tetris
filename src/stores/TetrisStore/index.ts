@@ -16,6 +16,7 @@ import {
   generateBoardMatrix,
   getRandomShape
 } from './logics/gameBoard'
+import { getLocalStorageNumber } from './logics/getLocalStorageNumber'
 import { getHardDropCoordinates } from './logics/hardDrop'
 import { moveHorizontalLogics } from './logics/moveHorizontal'
 import { rotateShapeLogics } from './logics/rotate'
@@ -32,15 +33,23 @@ export class TetrisStore {
   gameRunning = false
   gameTimer: NodeJS.Timeout | null = null
 
+  highScore = Number(localStorage.getItem('highScore')) || 0
+
   boardMatrix: BlockState[][]
   shapeQueue: ShapeProperty[]
   private justCollided = false
 
   constructor(boardHeight: number, boardWidth: number, framePerSecond: number) {
-    this.boardHeight = boardHeight
-    this.boardWidth = boardWidth
-    this.framePerSecond = framePerSecond
-    this.userSelectedFramePerSecond = framePerSecond
+    this.boardHeight = getLocalStorageNumber('boardHeight', boardHeight)
+    this.boardWidth = getLocalStorageNumber('boardWidth', boardWidth)
+    this.framePerSecond = getLocalStorageNumber(
+      'framePerSecond',
+      framePerSecond
+    )
+    this.userSelectedFramePerSecond = getLocalStorageNumber(
+      'framePerSecond',
+      framePerSecond
+    )
     this.boardMatrix = this.generateInitialBoard()
     this.shapeQueue = this.generateInitialQueue()
 
@@ -156,6 +165,16 @@ export class TetrisStore {
   private updateScore(clearedRows: number) {
     this.score +=
       (SCORES[clearedRows] || SCORES[4]) + this.combo * SUCCESSIVE_COMBO_BONUS
+
+    if (this.score > this.highScore) {
+      this.highScore = this.score
+      localStorage.setItem('highScore', String(this.highScore))
+    }
+  }
+
+  onClearHighScore() {
+    localStorage.removeItem('highScore')
+    this.highScore = 0
   }
 
   private checkLevelUp() {
@@ -298,17 +317,20 @@ export class TetrisStore {
     if (!width || width === this.boardWidth) return
     this.boardWidth = width
     this.resetAll()
+    localStorage.setItem('boardWidth', width.toString())
   }
 
   setHeight(height: number) {
     if (!height || height === this.boardHeight) return
     this.boardHeight = height
     this.resetAll()
+    localStorage.setItem('boardHeight', height.toString())
   }
 
   setFramePerSecond(fps: number) {
     if (!fps || fps === this.userSelectedFramePerSecond) return
     this.framePerSecond = fps
     this.userSelectedFramePerSecond = fps
+    localStorage.setItem('framePerSecond', fps.toString())
   }
 }

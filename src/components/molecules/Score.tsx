@@ -1,14 +1,15 @@
 import { FormContainer } from 'components/atoms/Form/FormContainer'
-import { observer } from 'mobx-react-lite'
-import { useStores } from 'stores'
+import React from 'react'
 
-export const Score: React.FC = observer(() => {
-  const {
-    tetrisStore: { score }
-  } = useStores()
+interface ScoreProps {
+  score: number
+  title: string
+  onClear?: () => void
+}
 
+export const Score: React.FC<ScoreProps> = ({ score, title, onClear }) => {
   return (
-    <FormContainer title="Score">
+    <FormContainer title={title} onClearSection={onClear}>
       <div className="text-center align-middle">
         <p className="cursor-default select-none text-2xl font-extrabold italic text-highlight md:text-7xl">
           {score}
@@ -16,4 +17,4 @@ export const Score: React.FC = observer(() => {
       </div>
     </FormContainer>
   )
-})
+}

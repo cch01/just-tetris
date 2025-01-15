@@ -53,11 +53,11 @@ export const FormContainer: React.FC<FormContainerProps> = ({
           {onClearSection && (
             <div
               role="button"
-              className="flex size-6 items-center justify-center"
+              className="flex items-center justify-center"
               onClick={onClearSection}
             >
               <FontAwesomeIcon
-                className="text-highlight"
+                className="text-sm text-highlight"
                 icon={faArrowRotateLeft}
               />
             </div>

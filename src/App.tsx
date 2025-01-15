@@ -6,11 +6,12 @@ import { Score } from 'components/molecules/Score'
 import { SettingModal } from 'components/molecules/SettingModal'
 import useDimensions from 'hooks/useDimensions'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
+import useOutOfBounds from 'hooks/useOutOfBounds'
 import { useTap } from 'hooks/useTap'
 import { useTouchMove } from 'hooks/useTouchMove'
 import _throttle from 'lodash/throttle'
 import { observer } from 'mobx-react-lite'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useStores } from 'stores'
 
 const App = observer(() => {
@@ -27,18 +28,29 @@ const App = observer(() => {
       setWidth,
       boardWidth,
       shapeQueue,
-      touchMoveHorizontal
+      touchMoveHorizontal,
+      score,
+      highScore,
+      onClearHighScore,
+      boardHeight,
+      setHeight
     }
   } = useStores()
 
   const { isMobile } = useDimensions()
+  const ref = useOutOfBounds({
+    onOutOfBoundY: () => setHeight(boardHeight - 1),
+    onOutOfBoundX: () => setWidth(boardWidth - 1),
+    offsetY: isMobile ? -70 : -50,
+    offsetX: isMobile ? -10 : -20
+  })
 
   useKeyInput(Key.ArrowUp, () => {
     rotateShape('clockwise')
   })
 
   const throttledMove = useCallback(
-    _throttle(moveBlock, 100, { leading: true, trailing: false }),
+    _throttle(moveBlock, 50, { leading: true, trailing: false }),
     [hardDrop]
   )
 
@@ -65,21 +77,22 @@ const App = observer(() => {
 
   useTap(onTap)
 
-  useEffect(() => {
-    if (isMobile) {
-      setWidth(12)
-    }
-  }, [isMobile, setWidth])
-
   return (
     <>
       <img src="./tetris_banner.png" className="m-auto max-h-40" />
 
-      <div className="flex flex-row flex-wrap items-center justify-center overflow-hidden md:mt-20 md:gap-8">
+      <div className="flex flex-row flex-wrap items-center justify-center overflow-hidden md:mt-20 md:flex-nowrap md:gap-8">
         {isMobile && (
           <div className="grid w-full gap-2 p-2">
-            <div className="grid grid-flow-col grid-cols-2 gap-4">
-              <Score />
+            <div className="grid grid-flow-col grid-cols-2 gap-2">
+              <div className="grid grid-flow-col grid-cols-2 gap-2">
+                <Score title="Score" score={score} />
+                <Score
+                  title="High Score"
+                  score={highScore}
+                  onClear={onClearHighScore}
+                />
+              </div>
               <Level />
             </div>
 
@@ -89,13 +102,18 @@ const App = observer(() => {
           </div>
         )}
 
-        <GameBoard />
+        <GameBoard ref={ref} />
         {!isMobile && (
           <div className="flex flex-col justify-between gap-4">
             <NextBlocks />
-
-            <Score />
-
+            <div className="grid grid-flow-col grid-cols-2  gap-4">
+              <Score title="Score" score={score} />
+              <Score
+                title="High Score"
+                onClear={onClearHighScore}
+                score={highScore}
+              />
+            </div>
             <Level />
 
             <GameControlButtons onToggleModal={onToggleModal} />
