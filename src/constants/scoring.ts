@@ -7,4 +7,14 @@ export const SCORES: Record<string, number> = {
 
 export const SUCCESSIVE_COMBO_BONUS = 50
 
-export const LEVEL_UP_SCORE_THRESHOLD = 1500
+export const DIFFICULTY_SCORE_THRESHOLD_MAP = {
+  low: 1200,
+  medium: 1000,
+  high: 800
+}
+
+export const DIFFICULTY_LEVELUP_FPS_MAP = {
+  low: 0.2,
+  medium: 0.25,
+  high: 0.5
+}

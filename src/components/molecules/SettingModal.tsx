@@ -1,4 +1,5 @@
 import { FormInputItem } from 'components/atoms/Form/FormInputItem'
+import { FormSelect } from 'components/atoms/Form/FormSelect'
 import { Modal } from 'components/atoms/Modal'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
 import { observer } from 'mobx-react-lite'
@@ -10,6 +11,19 @@ interface SettingModalProps {
   onCloseModal: () => void
 }
 
+const touchSensitivityOptions = [
+  { label: 'Low', value: 'low' },
+  { label: 'Medium', value: 'medium' },
+  { label: 'High', value: 'high' }
+]
+
+const blockSizeOptions = [
+  { label: 'Auto', value: 'auto' },
+  { label: 'Small', value: 'sm' },
+  { label: 'Medium', value: 'md' },
+  { label: 'Large', value: 'lg' }
+]
+
 export const SettingModal: React.FC<SettingModalProps> = observer(
   ({ isModalOpen, onCloseModal }) => {
     const {
@@ -17,15 +31,19 @@ export const SettingModal: React.FC<SettingModalProps> = observer(
         gameTimer,
         boardHeight,
         boardWidth,
-        framePerSecond,
-        setFramePerSecond,
         setHeight,
-        setWidth
+        setWidth,
+        setBlockSize,
+        setTouchSensitivity,
+        blockSize,
+        touchSensitivity,
+        difficulty,
+        setDifficulty
       }
     } = useStores()
 
-    const onHandleUserInput = (
-      type: 'framePerSecond' | 'boardWidth' | 'boardHeight',
+    const onHandleUserNumberInput = (
+      type: 'boardWidth' | 'boardHeight',
       val: string | undefined
     ) => {
       if (!val) return
@@ -37,10 +55,22 @@ export const SettingModal: React.FC<SettingModalProps> = observer(
       }))
     }
 
+    const onHandleUserSelectInput = (
+      type: 'difficulty' | 'touchSensitivity' | 'blockSize',
+      value: string
+    ) => {
+      setStates((oldVals) => ({
+        ...oldVals,
+        [type]: value
+      }))
+    }
+
     const [states, setStates] = useState({
       boardHeight,
       boardWidth,
-      framePerSecond
+      difficulty,
+      touchSensitivity,
+      blockSize
     })
 
     useEffect(() => {
@@ -48,15 +78,26 @@ export const SettingModal: React.FC<SettingModalProps> = observer(
       setStates({
         boardHeight,
         boardWidth,
-        framePerSecond
+        touchSensitivity,
+        blockSize,
+        difficulty
       })
-    }, [boardHeight, boardWidth, framePerSecond, isModalOpen])
+    }, [
+      blockSize,
+      boardHeight,
+      boardWidth,
+      difficulty,
+      isModalOpen,
+      touchSensitivity
+    ])
 
     const onOk = () => {
       if (!isModalOpen) return
-      setFramePerSecond(states.framePerSecond)
+      setDifficulty(states.difficulty)
       setHeight(states.boardHeight)
       setWidth(states.boardWidth)
+      setTouchSensitivity(states.touchSensitivity)
+      setBlockSize(states.blockSize)
       onCloseModal()
     }
 
@@ -76,7 +117,7 @@ export const SettingModal: React.FC<SettingModalProps> = observer(
             disabled={!!gameTimer}
             decimalScale={0}
             max={50}
-            onValueChange={(val) => onHandleUserInput('boardWidth', val)}
+            onValueChange={(val) => onHandleUserNumberInput('boardWidth', val)}
             value={states.boardWidth.toString()}
           />
           <FormInputItem
@@ -84,18 +125,33 @@ export const SettingModal: React.FC<SettingModalProps> = observer(
             disabled={!!gameTimer}
             max={50}
             decimalScale={0}
-            onValueChange={(val) => onHandleUserInput('boardHeight', val)}
+            onValueChange={(val) => onHandleUserNumberInput('boardHeight', val)}
             value={states.boardHeight.toString()}
           />
 
-          <FormInputItem
-            description="Speed:"
-            disabled={!!gameTimer}
-            onValueChange={(val) => onHandleUserInput('framePerSecond', val)}
-            value={states.framePerSecond.toString()}
-            suffix=" fps"
-            decimalScale={0}
-            step={1}
+          <FormSelect
+            options={touchSensitivityOptions}
+            value={states.difficulty}
+            onSelect={(selected) =>
+              onHandleUserSelectInput('difficulty', selected.value)
+            }
+            description="Difficulty"
+          />
+          <FormSelect
+            options={touchSensitivityOptions}
+            value={states.touchSensitivity}
+            onSelect={(selected) =>
+              onHandleUserSelectInput('touchSensitivity', selected.value)
+            }
+            description="Touch Sensitivity"
+          />
+          <FormSelect
+            options={blockSizeOptions}
+            value={states.blockSize}
+            onSelect={(selected) =>
+              onHandleUserSelectInput('blockSize', selected.value)
+            }
+            description="Block Size"
           />
         </div>
       </Modal>

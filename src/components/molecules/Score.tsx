@@ -2,7 +2,7 @@ import { FormContainer } from 'components/atoms/Form/FormContainer'
 import React from 'react'
 
 interface ScoreProps {
-  score: number
+  score: number | string
   title: string
   onClear?: () => void
 }

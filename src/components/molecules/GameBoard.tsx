@@ -1,5 +1,4 @@
 import { Block } from 'components/atoms/Block'
-import useDimensions from 'hooks/useDimensions'
 import { observer } from 'mobx-react-lite'
 import { forwardRef } from 'react'
 import { useStores } from 'stores'
@@ -12,8 +11,6 @@ const GameBoardComponent = forwardRef<HTMLDivElement, GameBoardProps>(
   ({ blockSize = 'lg' }, ref) => {
     const { tetrisStore } = useStores()
 
-    const { isMobile } = useDimensions()
-
     return (
       <div ref={ref}>
         {tetrisStore.boardMatrix.map((row, rowIdx) => (
@@ -24,7 +21,7 @@ const GameBoardComponent = forwardRef<HTMLDivElement, GameBoardProps>(
                   key={`block-${row}-${blockIdx}`}
                   color={block.colorScheme.schemeName}
                   hidden={block.hidden}
-                  size={blockSize || (isMobile && 'sm') || 'lg'}
+                  size={blockSize}
                 />
               )
             })}

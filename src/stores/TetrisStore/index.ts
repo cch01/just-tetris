@@ -1,10 +1,12 @@
 import { BLOCK_COLOR_SCHEMES, BlockState } from 'constants/block'
 import { NON_PLAY_FIELD_BOTTOM_ROW_IDX } from 'constants/gameBoard'
 import {
-  LEVEL_UP_SCORE_THRESHOLD,
+  DIFFICULTY_LEVELUP_FPS_MAP,
+  DIFFICULTY_SCORE_THRESHOLD_MAP,
   SCORES,
   SUCCESSIVE_COMBO_BONUS
 } from 'constants/scoring'
+import { DIFFICULTY_FPS_MAP } from 'constants/userSettings'
 import { makeAutoObservable } from 'mobx'
 import { RefreshBoardInputs } from 'types/gameBoard'
 import { Coordinate, ShapeProperty } from 'types/shape'
@@ -28,28 +30,30 @@ export class TetrisStore {
   level = 1
   boardHeight: number
   boardWidth: number
-  framePerSecond: number
-  userSelectedFramePerSecond: number
+  blockSize: 'sm' | 'md' | 'lg' | 'auto' = 'auto'
+  difficulty: 'low' | 'medium' | 'high' = 'medium'
+  touchSensitivity: 'low' | 'medium' | 'high' = 'medium'
+  private framePerSecond: number
   gameRunning = false
   gameTimer: NodeJS.Timeout | null = null
 
-  highScore = Number(localStorage.getItem('highScore')) || 0
+  highScore = Number(localStorage.getItem('highScore')?.slice(0, -1)) || 0
 
   boardMatrix: BlockState[][]
   shapeQueue: ShapeProperty[]
   private justCollided = false
 
-  constructor(boardHeight: number, boardWidth: number, framePerSecond: number) {
+  constructor(boardHeight: number, boardWidth: number) {
     this.boardHeight = getLocalStorageNumber('boardHeight', boardHeight)
     this.boardWidth = getLocalStorageNumber('boardWidth', boardWidth)
-    this.framePerSecond = getLocalStorageNumber(
-      'framePerSecond',
-      framePerSecond
-    )
-    this.userSelectedFramePerSecond = getLocalStorageNumber(
-      'framePerSecond',
-      framePerSecond
-    )
+
+    this.touchSensitivity =
+      (localStorage.getItem('touchSensitivity') as any) || 'medium'
+    this.blockSize = (localStorage.getItem('blockSize') as any) || 'auto'
+    this.difficulty = (localStorage.getItem('difficulty') as any) || 'medium'
+
+    this.framePerSecond = DIFFICULTY_FPS_MAP[this.difficulty]
+
     this.boardMatrix = this.generateInitialBoard()
     this.shapeQueue = this.generateInitialQueue()
 
@@ -168,7 +172,10 @@ export class TetrisStore {
 
     if (this.score > this.highScore) {
       this.highScore = this.score
-      localStorage.setItem('highScore', String(this.highScore))
+      localStorage.setItem(
+        'highScore',
+        String(this.highScore + this.difficulty[0].toUpperCase())
+      )
     }
   }
 
@@ -178,9 +185,13 @@ export class TetrisStore {
   }
 
   private checkLevelUp() {
-    if (Math.floor(this.score / LEVEL_UP_SCORE_THRESHOLD) > this.level) {
+    const threshold = DIFFICULTY_SCORE_THRESHOLD_MAP[this.difficulty]
+    const additionalFPS = DIFFICULTY_LEVELUP_FPS_MAP[this.difficulty]
+    if (Math.floor(this.score / threshold) > this.level - 1) {
       this.level++
-      this.framePerSecond += 1.5
+      this.framePerSecond += additionalFPS
+      this.onPause()
+      this.onGameStart()
     }
   }
 
@@ -327,10 +338,19 @@ export class TetrisStore {
     localStorage.setItem('boardHeight', height.toString())
   }
 
-  setFramePerSecond(fps: number) {
-    if (!fps || fps === this.userSelectedFramePerSecond) return
-    this.framePerSecond = fps
-    this.userSelectedFramePerSecond = fps
-    localStorage.setItem('framePerSecond', fps.toString())
+  setBlockSize(size: 'sm' | 'md' | 'lg' | 'auto') {
+    this.blockSize = size
+    localStorage.setItem('blockSize', size)
+  }
+
+  setDifficulty(difficulty: 'low' | 'medium' | 'high') {
+    this.difficulty = difficulty
+    localStorage.setItem('difficulty', difficulty)
+    this.framePerSecond = DIFFICULTY_FPS_MAP[difficulty]
+  }
+
+  setTouchSensitivity(sensitivity: 'low' | 'medium' | 'high') {
+    this.touchSensitivity = sensitivity
+    localStorage.setItem('touchSensitivity', sensitivity)
   }
 }

@@ -2,8 +2,8 @@ import { useEffect, useRef } from 'react'
 import { Coordinate } from 'types/shape'
 
 const START_THRESHOLD = 45
-const MIN_THRESHOLD = 10
-const THRESHOLD_DECAY = 5
+const MIN_THRESHOLD = 5
+const THRESHOLD_DECAY = 8
 const HARD_DROP_COOLDOWN = 500
 
 /**
@@ -17,7 +17,8 @@ export const useTouchMove = (
   colCount: number,
   shapeCoordinates: Coordinate[],
   onTouchMove: (targetCoordinates: Coordinate[]) => void,
-  onHardDrop: () => void
+  onHardDrop: () => void,
+  touchSensitivity = START_THRESHOLD
 ) => {
   const initialTouch = useRef<Touch | null>(null)
   const lastTouch = useRef<Touch | null>(null)
@@ -60,8 +61,9 @@ export const useTouchMove = (
 
       const currentThreshold = Math.max(
         MIN_THRESHOLD,
-        START_THRESHOLD - moveCount.current * THRESHOLD_DECAY
+        touchSensitivity - moveCount.current * THRESHOLD_DECAY
       )
+
       accumulatedDeltaX.current += deltaX
 
       if (Math.abs(accumulatedDeltaX.current) >= currentThreshold) {
@@ -100,5 +102,5 @@ export const useTouchMove = (
       document.removeEventListener('touchmove', handleTouchMove)
       document.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [colCount, shapeCoordinates, onTouchMove, onHardDrop])
+  }, [colCount, shapeCoordinates, onTouchMove, onHardDrop, touchSensitivity])
 }

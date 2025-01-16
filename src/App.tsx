@@ -5,6 +5,7 @@ import { NextBlocks } from 'components/molecules/NextBlocks'
 import { Score } from 'components/molecules/Score'
 import { SettingModal } from 'components/molecules/SettingModal'
 import { MIN_HEIGHT, MIN_WIDTH } from 'constants/gameBoard'
+import { TOUCH_SENSITIVITY_LEVELS } from 'constants/userSettings'
 import useDimensions from 'hooks/useDimensions'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
 import useOutOfBounds from 'hooks/useOutOfBounds'
@@ -12,7 +13,7 @@ import { useTap } from 'hooks/useTap'
 import { useTouchMove } from 'hooks/useTouchMove'
 import _throttle from 'lodash/throttle'
 import { observer } from 'mobx-react-lite'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useStores } from 'stores'
 
 const App = observer(() => {
@@ -37,7 +38,10 @@ const App = observer(() => {
       setHeight,
       onPause,
       onGameStart,
-      gameRunning
+      gameRunning,
+      touchSensitivity,
+      blockSize,
+      difficulty
     }
   } = useStores()
 
@@ -69,11 +73,13 @@ const App = observer(() => {
     _throttle(hardDrop, 500, { leading: true, trailing: false }),
     [hardDrop]
   )
+
   useTouchMove(
     boardWidth,
     shapeQueue[0].blockCoordinates,
     touchMoveHorizontal,
-    throttledHardDrop
+    throttledHardDrop,
+    TOUCH_SENSITIVITY_LEVELS[touchSensitivity]
   )
 
   const onTap = useCallback(() => {
@@ -81,6 +87,15 @@ const App = observer(() => {
   }, [rotateShape])
 
   useTap(onTap)
+
+  const userSelectedBlockSize = useMemo(() => {
+    if (blockSize === 'auto') {
+      return isMobile ? 'sm' : 'lg'
+    }
+    return blockSize
+  }, [blockSize, isMobile])
+
+  const highScoreString = highScore + difficulty[0].toUpperCase()
 
   return (
     <>
@@ -94,7 +109,7 @@ const App = observer(() => {
                 <Score title="Score" score={score} />
                 <Score
                   title="High Score"
-                  score={highScore}
+                  score={highScoreString}
                   onClear={onClearHighScore}
                 />
               </div>
@@ -107,7 +122,7 @@ const App = observer(() => {
           </div>
         )}
 
-        <GameBoard ref={ref} />
+        <GameBoard ref={ref} blockSize={userSelectedBlockSize} />
         {!isMobile && (
           <div className="flex flex-col justify-between gap-2">
             <NextBlocks />
@@ -116,7 +131,7 @@ const App = observer(() => {
               <Score
                 title="High Score"
                 onClear={onClearHighScore}
-                score={highScore}
+                score={highScoreString}
               />
             </div>
             <Level />
