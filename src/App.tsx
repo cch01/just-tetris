@@ -4,6 +4,7 @@ import { Level } from 'components/molecules/Level'
 import { NextBlocks } from 'components/molecules/NextBlocks'
 import { Score } from 'components/molecules/Score'
 import { SettingModal } from 'components/molecules/SettingModal'
+import { MIN_HEIGHT, MIN_WIDTH } from 'constants/gameBoard'
 import useDimensions from 'hooks/useDimensions'
 import { Key, useKeyInput } from 'hooks/useKeyInput'
 import useOutOfBounds from 'hooks/useOutOfBounds'
@@ -42,9 +43,9 @@ const App = observer(() => {
 
   const { isMobile } = useDimensions()
   const ref = useOutOfBounds({
-    onOutOfBoundY: () => setHeight(boardHeight - 1),
-    onOutOfBoundX: () => setWidth(boardWidth - 1),
-    offsetY: isMobile ? -70 : -50,
+    onOutOfBoundY: () => setHeight(Math.max(MIN_HEIGHT, boardHeight - 1)),
+    onOutOfBoundX: () => setWidth(Math.max(MIN_WIDTH, boardWidth - 1)),
+    offsetY: isMobile ? -65 : -20,
     offsetX: isMobile ? -10 : -20
   })
 
@@ -83,9 +84,9 @@ const App = observer(() => {
 
   return (
     <>
-      <img src="./tetris_banner.png" className="m-auto max-h-40" />
+      <img src="./tetris_banner.png" className="m-auto max-h-14 md:max-h-20" />
 
-      <div className="flex flex-row flex-wrap items-center justify-center overflow-hidden md:mt-20 md:flex-nowrap md:gap-8">
+      <div className="flex flex-row flex-wrap items-center justify-center overflow-hidden md:mt-8 md:flex-nowrap md:gap-8">
         {isMobile && (
           <div className="grid w-full gap-2 p-2">
             <div className="grid grid-flow-col grid-cols-2 gap-2">
@@ -108,9 +109,9 @@ const App = observer(() => {
 
         <GameBoard ref={ref} />
         {!isMobile && (
-          <div className="flex flex-col justify-between gap-4">
+          <div className="flex flex-col justify-between gap-2">
             <NextBlocks />
-            <div className="grid grid-flow-col grid-cols-2  gap-4">
+            <div className="grid grid-flow-col grid-cols-2  gap-2">
               <Score title="Score" score={score} />
               <Score
                 title="High Score"
@@ -124,7 +125,7 @@ const App = observer(() => {
           </div>
         )}
         {isMobile && (
-          <div className="w-full p-2">
+          <div className="absolute bottom-4 w-full p-2">
             <GameControlButtons onToggleModal={onToggleModal} />
           </div>
         )}

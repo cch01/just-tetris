@@ -37,13 +37,13 @@ export const FormContainer: React.FC<FormContainerProps> = ({
   return (
     <div
       className={clsx(
-        'flex flex-col rounded-md border border-border p-1 transition-all duration-150 ease-in-out md:p-2'
+        'flex flex-col rounded-md border border-border p-1 transition-all duration-150 ease-in-out'
       )}
       style={{ maxHeight: currentIsCollapsed ? 48 : 1000 }}
     >
       <div className="flex w-full flex-row items-center justify-between">
         <span
-          className="cursor-pointer text-xs font-bold italic text-primary md:text-lg"
+          className="cursor-pointer text-2xs font-bold italic text-primary md:text-sm"
           onClick={(e) => (collapsible ? onToggleCollapse(e) : null)}
           role="heading"
         >
@@ -57,7 +57,7 @@ export const FormContainer: React.FC<FormContainerProps> = ({
               onClick={onClearSection}
             >
               <FontAwesomeIcon
-                className="text-sm text-highlight"
+                className="text-xs text-highlight"
                 icon={faArrowRotateLeft}
               />
             </div>
@@ -70,7 +70,7 @@ export const FormContainer: React.FC<FormContainerProps> = ({
             >
               <FontAwesomeIcon
                 className={clsx(
-                  'text-sm text-highlight transition-all md:text-lg ',
+                  'text-sm text-highlight transition-all md:text-base',
                   currentIsCollapsed && 'rotate-180'
                 )}
                 icon={faAngleUp}
@@ -81,13 +81,13 @@ export const FormContainer: React.FC<FormContainerProps> = ({
       </div>
       <Hr
         className={clsx(
-          'mb-1 transition-opacity md:mb-2',
+          'mb-1 transition-opacity ',
           currentIsCollapsed ? '-z-10 opacity-0' : 'opacity-100'
         )}
       />
       <div
         className={clsx(
-          'mb-1 transition-opacity md:mb-2',
+          'mb-1 flex flex-grow items-center justify-center transition-opacity',
           currentIsCollapsed ? '-z-10 opacity-0' : 'opacity-100'
         )}
       >

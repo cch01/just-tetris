@@ -11,7 +11,7 @@ export const Score: React.FC<ScoreProps> = ({ score, title, onClear }) => {
   return (
     <FormContainer title={title} onClearSection={onClear}>
       <div className="text-center align-middle">
-        <p className="cursor-default select-none text-2xl font-extrabold italic text-highlight md:text-7xl">
+        <p className="cursor-default select-none text-2xl font-extrabold italic text-highlight md:text-3xl">
           {score}
         </p>
       </div>

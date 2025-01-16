@@ -12,7 +12,7 @@ export const NextBlockPreview: React.FC<NextBlockPreviewProps> = memo(
     const { isMobile } = useDimensions()
     return (
       <div className="flex min-h-12 w-32 items-center justify-center md:min-h-20">
-        <div className="p-2 md:p-4">
+        <div className="p-2 md:p-3">
           {blocksMatrix.map((row, rowIdx) => (
             <div key={`board-row-${rowIdx}`} className="flex">
               {row.map((block, blockIdx) => {

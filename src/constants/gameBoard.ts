@@ -9,3 +9,6 @@ export const KICK_OFFSETS = [
 ] as const
 
 export const HIDDEN_TOP_BUFFER_BLOCKS = 4 as const
+
+export const MIN_WIDTH = 8 as const
+export const MIN_HEIGHT = 10 as const

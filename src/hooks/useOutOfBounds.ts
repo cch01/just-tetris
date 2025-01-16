@@ -103,7 +103,7 @@ function useOutOfBounds({
       subtree: true,
       attributes: true
     })
-
+    checkBounds()
     return () => {
       stopChecking()
       observer.disconnect()

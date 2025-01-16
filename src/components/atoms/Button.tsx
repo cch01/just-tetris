@@ -29,7 +29,7 @@ export const Button: React.FC<ButtonProps> = memo(
         disabled={isDisabled}
         onClick={onClick}
         className={clsx(
-          `min-w-10 rounded-md border border-border transition-colors duration-75 ease-in md:min-w-20`,
+          `min-w-10 rounded-md border border-border transition-colors duration-75 ease-in md:min-w-16`,
           isDisabled
             ? 'cursor-not-allowed bg-bg-alternative'
             : 'hover:bg-bg-secondary',
