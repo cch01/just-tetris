@@ -95,7 +95,9 @@ const App = observer(() => {
     return blockSize
   }, [blockSize, isMobile])
 
-  const highScoreString = highScore + difficulty[0].toUpperCase()
+  const highScoreString = !highScore
+    ? 0
+    : highScore + difficulty[0].toUpperCase()
 
   return (
     <>
