@@ -22,7 +22,8 @@
     "react": "^18.2.0",
     "react-currency-input-field": "^3.8.0",
     "react-dom": "^18.2.0",
-    "tailwindcss-themer": "^4.0.0"
+    "tailwindcss-themer": "^4.0.0",
+    "vite-plugin-pwa": "^0.21.1"
   },
   "devDependencies": {
     "@nabla/vite-plugin-eslint": "^1.5.0",
