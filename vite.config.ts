@@ -47,7 +47,7 @@ export default defineConfig({
         short_name: 'Just Tetris',
         start_url: '/',
         background_color: '#051622',
-        theme_color: '#ECA864',
+        theme_color: '#051622',
         scope: '/',
         orientation: 'portrait'
       }
