@@ -15,7 +15,7 @@ export default defineConfig({
     tsconfigPaths(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'favicon.svg'],
+      includeAssets: ['favicon.ico', 'favicon.svg', 'tetris_banner.png'],
       manifest: {
         icons: [
           {
@@ -50,6 +50,22 @@ export default defineConfig({
         theme_color: '#051622',
         scope: '/',
         orientation: 'portrait'
+      },
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern:
+              /^https:\/\/just-tetris.cch-4679\.ca\/.*\.(png|jpg|jpeg|svg|gif)$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'image-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 120 * 24 * 60 * 60 // 120 days
+              }
+            }
+          }
+        ]
       }
     })
   ],
