@@ -97,7 +97,7 @@ const App = observer(() => {
 
   const highScoreString = !highScore
     ? 0
-    : highScore + difficulty[0].toUpperCase()
+    : `${difficulty[0].toUpperCase()}-${highScore}`
 
   return (
     <>
@@ -129,14 +129,15 @@ const App = observer(() => {
           <div className="flex flex-col justify-between gap-2">
             <NextBlocks />
             <div className="grid grid-flow-col grid-cols-2  gap-2">
-              <Score title="Score" score={score} />
+              <Level />
+
               <Score
                 title="High Score"
                 onClear={onClearHighScore}
                 score={highScoreString}
               />
             </div>
-            <Level />
+            <Score title="Score" score={score} />
 
             <GameControlButtons onToggleModal={onToggleModal} />
           </div>

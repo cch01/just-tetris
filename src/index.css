@@ -2,7 +2,11 @@
 @tailwind utilities;
 @tailwind components;
 
-body {
+
+html, body {
 	@apply bg-bg-primary overflow-hidden select-none;
-	overscroll-behavior: none;
+  overscroll-behavior: none;
+  height: 100%; /* Ensure full height */
+  margin: 0;
+  overflow: hidden; /* Prevent additional scrollbars */
 }

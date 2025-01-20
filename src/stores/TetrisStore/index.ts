@@ -61,7 +61,7 @@ export class TetrisStore {
   }
 
   private generateInitialBoard(): BlockState[][] {
-    return generateBoardMatrix(this.boardHeight, this.boardWidth, 'init')
+    return generateBoardMatrix(this.boardHeight + 4, this.boardWidth, 'init')
   }
 
   private generateInitialQueue(): ShapeProperty[] {
