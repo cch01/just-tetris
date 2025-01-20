@@ -101,7 +101,11 @@ const App = observer(() => {
 
   return (
     <>
-      <img src="./tetris_banner.png" className="m-auto max-h-14 md:max-h-20" />
+      <img
+        src="./tetris_banner.png"
+        className="m-auto max-h-14 md:max-h-20"
+        alt="Just Tetris"
+      />
 
       <div className="flex flex-row flex-wrap items-center justify-center overflow-hidden md:mt-8 md:flex-nowrap md:gap-8">
         {isMobile && (
